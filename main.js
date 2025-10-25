@@ -77,7 +77,10 @@ function setupApp() {
   // PWA: register service worker (best-effort)
   try {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
+      const swUrl = (import.meta && import.meta.env && import.meta.env.BASE_URL)
+        ? import.meta.env.BASE_URL + 'sw.js'
+        : './sw.js';
+      navigator.serviceWorker.register(swUrl).catch(() => {});
     }
   } catch {}
   
