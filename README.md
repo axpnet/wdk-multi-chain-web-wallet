@@ -1,6 +1,10 @@
 # 💼 WDK Multi‑Wallet (PWA)
 
-[![Version](https://img.shields.io/badge/version-1.01-blue.svg)](#) [![PWA](https://img.shields.io/badge/PWA-ready-brightgreen.svg)](#)
+[![Version](https://img.shields.io/badge/version-1.01-blue.svg)](#) 
+[![PWA](https://img.shields.io/badge/PWA-ready-brightgreen.svg)](#)
+[![CI/CD](https://github.com/axpnet/wdk-multi-chain-web-wallet/actions/workflows/ci.yml/badge.svg)](https://github.com/axpnet/wdk-multi-chain-web-wallet/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Deploy](https://img.shields.io/badge/deploy-GitHub%20Pages-blue)](https://axpnet.github.io/wdk-multi-chain-web-wallet/)
 
 A lightweight, multi‑chain crypto wallet built with Vite + Vanilla JS. It runs fully in the browser, supports multiple named wallets (each with its own password), shows live fiat values, and ships as a PWA.
 
