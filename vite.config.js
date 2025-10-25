@@ -5,13 +5,16 @@ import wasm from 'vite-plugin-wasm';
 import { resolve } from 'path';
 
 export default defineConfig({
+  // Base URL per GitHub Pages deployment
+  base: process.env.NODE_ENV === 'production' ? '/wdk-multi-chain-web-wallet/' : '/',
+  
   plugins: [
     // CRITICAL: Wasm support per TON, tiny-secp256k1, sodium
     wasm(),
     
     // Node.js polyfills per blockchain libraries
     nodePolyfills({
-      protocolImports: true,
+        protocolImports: true,
       
       // Globals necessari
       globals: {
