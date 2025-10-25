@@ -19,6 +19,23 @@ Version: 1.01
 - Auto‑lock: choose a timeout that locks the app after inactivity
 - Lock now: clears in‑memory secrets and returns to Login
 
+## Livelli di sicurezza (★)
+
+- Cifratura seed (AES‑256‑GCM): ★★★★★
+- Derivazione chiavi (PBKDF2 100k/SHA‑256): ★★★★☆
+- Dati a riposo (localStorage cifrato): ★★★☆☆
+- Gestione memoria (seed volatile post‑unlock): ★★★★☆
+- Password per‑wallet (isolate): ★★★★☆
+- Cambio password (re‑encrypt on change): ★★★★☆
+- Backup cifrato (.wdk): ★★★★☆
+- Auto‑lock inattività: ★★★★☆
+- Nessuna password salvata: ★★★★★
+- Supply‑chain risk (dipendenze NPM): ★★☆☆☆
+- Rischi rete (phishing/man‑in‑the‑browser): ★★☆☆☆
+- PWA/Service Worker cache hardening: ★★★☆☆
+
+Legenda: ★★★★★ molto forte · ★★★★☆ forte · ★★★☆☆ medio · ★★☆☆☆ base · ★☆☆☆☆ debole
+
 ## Best Practices
 
 - Always keep an offline seed backup
