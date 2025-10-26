@@ -9,6 +9,10 @@ export default defineConfig({
   // Base dinamica: su GitHub Pages usa sottocartella, su Vercel/localhost usa '/'
   base: process.env.BASE_PATH || '/',
 
+
+  // Base URL per GitHub Pages deployment
+  //base: process.env.NODE_ENV === 'production' ? '/wdk-multi-chain-web-wallet/' : '/',
+
   
   plugins: [
     // CRITICAL: Wasm support per TON, tiny-secp256k1, sodium

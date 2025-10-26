@@ -817,13 +817,56 @@ textarea.form-control {
 
 /* === FOOTER === */
 .app-footer {
-  margin-top: 48px;
-  padding: 16px 0;
+  margin-top: 32px;
+  padding: 20px 0;
   border-top: 1px solid var(--border);
   background: var(--bg-secondary);
+  color: var(--text-muted);
+  text-align: center;
 }
-.app-footer a.app-footer-link { color: var(--text-primary); text-decoration: none; }
-.app-footer a.app-footer-link:hover { text-decoration: underline; }
+
+.app-footer .container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.app-footer .footer-link { 
+  color: var(--text-muted); 
+  text-decoration: none;
+  transition: color var(--transition);
+}
+
+.app-footer .footer-link:hover { 
+  color: var(--text-primary); 
+  text-decoration: underline; 
+}
+
+/* Override Bootstrap utility classes that conflict with theme variables */
+.bg-light {
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Ensure text-muted follows theme variables */
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+/* Make .card.bg-light use theme-aware background and border */
+.card.bg-light {
+  background: var(--bg-card) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Buttons/links in topbar */
+.topbar .topbar-links a {
+  color: var(--text-secondary);
+  margin-left: 12px;
+  text-decoration: none;
+}
+.topbar .topbar-links a:hover { color: var(--text-primary); text-decoration: underline; }
 
 /* Ensure send button contrast in all themes */
 .wallet-action-btn.send-action {

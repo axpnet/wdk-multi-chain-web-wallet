@@ -36,12 +36,16 @@ function createTopbar() {
           <i data-feather="briefcase" class="logo-icon"></i>
           <span class="logo-text">WDK Wallet</span>
         </div>
-        <div class="theme-switch">
-          <a href="https://github.com/axpnet/wdk-multi-chain-web-wallet/blob/main/docs/getting-started.md" target="_blank" rel="noopener" class="btn btn-sm">Guida</a>
-          <a href="https://github.com/axpnet/wdk-multi-chain-web-wallet/blob/main/docs/security.md" target="_blank" rel="noopener" class="btn btn-sm">Sicurezza</a>
-          <button id="themeAuto" class="btn btn-sm">Auto</button>
-          <button id="themeLight" class="btn btn-sm">Light</button>
-          <button id="themeDark" class="btn btn-sm">Dark</button>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="topbar-links">
+            <a href="./docs/getting-started.md" target="_blank" rel="noopener">Guida</a>
+            <a href="./docs/security.md" target="_blank" rel="noopener">Sicurezza</a>
+          </div>
+          <div class="theme-switch">
+            <button id="themeAuto" class="btn btn-sm">Auto</button>
+            <button id="themeLight" class="btn btn-sm">Light</button>
+            <button id="themeDark" class="btn btn-sm">Dark</button>
+          </div>
         </div>
       </div>
     `;
@@ -59,6 +63,15 @@ function setupApp() {
   
   // Initialize systems
   initToastSystem();
+  
+  // Replace feather icons BEFORE initializing theme system (so buttons exist in DOM)
+  try { 
+    if (window.feather && typeof window.feather.replace === 'function') {
+      window.feather.replace(); 
+    }
+  } catch (e) { console.warn('Feather icons not loaded:', e); }
+  
+  // Now initialize theme system (buttons are in DOM after feather.replace)
   initThemeSystem(topbar);
   
   // PWA: register service worker (best-effort)
