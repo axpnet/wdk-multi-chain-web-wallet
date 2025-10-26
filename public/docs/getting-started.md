@@ -1,5 +1,15 @@
 # 🚀 Getting Started - WDK Wallet
 
+<div align="center">
+  <p>
+    <img src="https://assets.coingecko.com/coins/images/279/small/ethereum.png" alt="Ethereum" width="40" height="40" title="Ethereum"/>
+    <img src="https://assets.coingecko.com/coins/images/4713/small/matic-token-icon.png" alt="Polygon" width="40" height="40" title="Polygon"/>
+    <img src="https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png" alt="BSC" width="40" height="40" title="BNB Smart Chain"/>
+    <img src="https://assets.coingecko.com/coins/images/4128/small/solana.png" alt="Solana" width="40" height="40" title="Solana"/>
+    <img src="https://assets.coingecko.com/coins/images/17980/small/ton_symbol.png" alt="TON" width="40" height="40" title="TON"/>
+  </p>
+</div>
+
 Welcome to **WDK Wallet**, your professional multi-chain wallet for managing cryptocurrencies across different blockchains.
 
 ## 📋 Table of Contents
