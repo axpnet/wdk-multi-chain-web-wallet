@@ -36,7 +36,6 @@ function createTopbar() {
           <i data-feather="briefcase" class="logo-icon"></i>
           <span class="logo-text">WDK Wallet</span>
         </div>
-<<<<<<< HEAD
         <div style="display:flex;align-items:center;gap:12px">
           <div class="topbar-links">
             <a href="./docs/getting-started.md" target="_blank" rel="noopener">Guida</a>
@@ -51,6 +50,8 @@ function createTopbar() {
       </div>
     `;
     appEl.insertAdjacentElement('afterbegin', topbar);
+    // Replace feather icons now that topbar is in the DOM
+    try { if (window.feather && typeof window.feather.replace === 'function') window.feather.replace(); } catch (e) {}
   }
   
   return topbar;

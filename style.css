@@ -868,6 +868,32 @@ textarea.form-control {
 }
 .topbar .topbar-links a:hover { color: var(--text-primary); text-decoration: underline; }
 
+/* Override Bootstrap utility classes that conflict with theme variables */
+.bg-light {
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Ensure text-muted follows theme variables */
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+/* Make .card.bg-light use theme-aware background and border */
+.card.bg-light {
+  background: var(--bg-card) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Buttons/links in topbar */
+.topbar .topbar-links a {
+  color: var(--text-secondary);
+  margin-left: 12px;
+  text-decoration: none;
+}
+.topbar .topbar-links a:hover { color: var(--text-primary); text-decoration: underline; }
+
 /* Ensure send button contrast in all themes */
 .wallet-action-btn.send-action {
   background: var(--primary) !important;
