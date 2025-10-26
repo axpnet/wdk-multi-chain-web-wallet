@@ -6,12 +6,11 @@ import { resolve } from 'path';
 
 export default defineConfig({
 
-  // Base dinamica: su GitHub Pages usa sottocartella, su Vercel/localhost usa '/'
-  base: process.env.BASE_PATH || '/',
-
-
-  // Base URL per GitHub Pages deployment
-  //base: process.env.NODE_ENV === 'production' ? '/wdk-multi-chain-web-wallet/' : '/',
+  // PORTABILITÀ: 
+  // - './' = path relativi per deployment in qualsiasi cartella (Aruba, server custom)
+  // - BASE_PATH env var = path assoluto per GitHub Pages o deployment specifici
+  // Uso: npm run build:portable (default ./) o npm run build:github (path assoluto)
+  base: process.env.BASE_PATH || './',
 
   
   plugins: [

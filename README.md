@@ -105,8 +105,14 @@ Open http://localhost:3000 in your browser.
 Build for production:
 
 ```bash
-npm run build
-npm run preview  # optional local preview of dist/
+# Portable build (path relativi - funziona in qualsiasi cartella)
+npm run build:portable
+
+# GitHub Pages build (path assoluti)
+npm run build:github
+
+# Preview locale
+npm run preview
 ```
 
 ## 🌐 Deployment & Installation

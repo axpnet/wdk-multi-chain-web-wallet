@@ -16,9 +16,18 @@ Il sistema rileva automaticamente il percorso a runtime.
 
 La cartella `dist/` contiene:
 - ✅ Tutti i file HTML, CSS, JS ottimizzati e minificati
-- ✅ `.htaccess` configurato per Aruba (Apache)
+- ✅ `.htaccess` configurato per Apache (compatibile Aruba)
 - ✅ Manifest PWA e Service Worker
-- ✅ Asset con path corretti per `/wdk-multi-chain-web-wallet/`
+- ✅ **Path relativi** che funzionano in qualsiasi cartella
+
+### 🛠️ Build del pacchetto
+
+Per creare il pacchetto portabile:
+```bash
+npm run build:portable
+```
+
+Questo genera `dist/` con path relativi (`./assets/...`) invece di assoluti.
 
 ---
 
