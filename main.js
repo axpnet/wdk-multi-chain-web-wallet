@@ -37,8 +37,6 @@ function createTopbar() {
           <span class="logo-text">WDK Wallet</span>
         </div>
         <div class="theme-switch">
-          <a href="https://github.com/axpnet/wdk-multi-chain-web-wallet/blob/main/docs/getting-started.md" target="_blank" rel="noopener" class="btn btn-sm">Guida</a>
-          <a href="https://github.com/axpnet/wdk-multi-chain-web-wallet/blob/main/docs/security.md" target="_blank" rel="noopener" class="btn btn-sm">Sicurezza</a>
           <button id="themeAuto" class="btn btn-sm">Auto</button>
           <button id="themeLight" class="btn btn-sm">Light</button>
           <button id="themeDark" class="btn btn-sm">Dark</button>
@@ -64,10 +62,7 @@ function setupApp() {
   // PWA: register service worker (best-effort)
   try {
     if ('serviceWorker' in navigator) {
-      const swUrl = (import.meta && import.meta.env && import.meta.env.BASE_URL)
-        ? import.meta.env.BASE_URL + 'sw.js'
-        : './sw.js';
-      navigator.serviceWorker.register(swUrl).catch(() => {});
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
     }
   } catch {}
   
