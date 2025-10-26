@@ -37,10 +37,22 @@ A lightweight, multi‑chain crypto wallet built with Vite + Vanilla JS. It runs
 - Wizard onboarding (4 steps): Setup → Seed → Verify → Initialize
 - Send/Receive modals with QR, dynamic gas denomination per chain
 - Fiat countervalue (EUR/USD) with short cache (CoinGecko)
-- PWA ready: installable and offline‑friendly basics
-- Clean UI with toasts, modals, centered dialogs
 
 ## � Supported Platforms & Devices
+
+Coming soon. Inserisci gli screenshot in `docs/screenshots/` e rimuovi i commenti HTML qui sotto per mostrare la galleria.
+
+<!--
+<p align="center">
+  <img src="docs/screenshots/home.png" width="45%" alt="Home"/>
+  <img src="docs/screenshots/wizard.png" width="45%" alt="Onboarding Wizard"/>
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/send.png" width="45%" alt="Send Modal"/>
+  <img src="docs/screenshots/dark-mode.png" width="45%" alt="Dark Mode & Chain Icons"/>
+</p>
+-->
 
 - Web browsers: Chrome, Edge, Firefox, Safari (desktop & mobile)
 - PWA installabile: Windows, macOS, Linux, Android, iOS (con limiti PWA su iOS)
