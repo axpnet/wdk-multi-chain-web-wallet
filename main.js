@@ -50,8 +50,6 @@ function createTopbar() {
       </div>
     `;
     appEl.insertAdjacentElement('afterbegin', topbar);
-    // Replace feather icons now that topbar is in the DOM
-    try { if (window.feather && typeof window.feather.replace === 'function') window.feather.replace(); } catch (e) {}
   }
   
   return topbar;
@@ -65,6 +63,15 @@ function setupApp() {
   
   // Initialize systems
   initToastSystem();
+  
+  // Replace feather icons BEFORE initializing theme system (so buttons exist in DOM)
+  try { 
+    if (window.feather && typeof window.feather.replace === 'function') {
+      window.feather.replace(); 
+    }
+  } catch (e) { console.warn('Feather icons not loaded:', e); }
+  
+  // Now initialize theme system (buttons are in DOM after feather.replace)
   initThemeSystem(topbar);
   
   // PWA: register service worker (best-effort)
