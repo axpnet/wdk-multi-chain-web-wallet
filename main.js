@@ -50,8 +50,6 @@ function createTopbar() {
       </div>
     `;
     appEl.insertAdjacentElement('afterbegin', topbar);
-    // Replace feather icons now that topbar is in the DOM
-    try { if (window.feather && typeof window.feather.replace === 'function') window.feather.replace(); } catch (e) {}
   }
   
   return topbar;
