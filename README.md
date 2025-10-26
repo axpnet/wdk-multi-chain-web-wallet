@@ -386,10 +386,10 @@ Online docs (GitHub Pages-ready):
 
 Per mantenere il README focalizzato sul prodotto, la documentazione completa dei workflow GitHub Actions è stata spostata in una pagina dedicata. Trovi dettagli, stato e istruzioni qui:
 
-- Documentazione CI/CD: .github/README.md (GitHub Actions Workflows)
-- Tab “Actions” del repository: https://github.com/axpnet/wdk-multi-chain-web-wallet/actions
+- Documentazione CI/CD: [.github/WORKFLOWS.md](.github/WORKFLOWS.md) (GitHub Actions Workflows)
+- Tab "Actions" del repository: https://github.com/axpnet/wdk-multi-chain-web-wallet/actions
 
-Nel README manteniamo solo i badge di stato per un colpo d’occhio.
+Nel README manteniamo solo i badge di stato per un colpo d'occhio.
 
 ## 🙌 Credits & Acknowledgments
 
