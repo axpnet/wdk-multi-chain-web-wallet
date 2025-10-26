@@ -5,6 +5,15 @@ import { getPreferredCurrency, setPreferredCurrency, getPrices } from './price_s
 import { setAutoLockTimeout, getAutoLockTimeout, encryptData, decryptData } from './secure_storage.js';
 import { logout, getAllWallets, getActiveWallet, updateWallet } from './wallet_manager.js';
 
+// === CHAIN ICONS ===
+const CHAIN_ICONS = {
+  ethereum: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
+  polygon: 'https://assets.coingecko.com/coins/images/4713/small/matic-token-icon.png',
+  bsc: 'https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png',
+  solana: 'https://assets.coingecko.com/coins/images/4128/small/solana.png',
+  ton: 'https://assets.coingecko.com/coins/images/17980/small/ton_symbol.png'
+};
+
 // === RENDER WALLET PANEL ===
 
 export function renderWalletReadyPanel() {
@@ -49,6 +58,7 @@ export function renderWalletReadyPanel() {
     </div>
     
     <div class="wallet-balance-section" style="background:linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);padding:32px;border-radius:12px;color:white;margin-bottom:20px;text-align:center">
+      <img id="chainIcon" class="chain-icon-balance" src="" alt="" style="display:none;width:48px;height:48px;border-radius:50%;margin:0 auto 12px;object-fit:contain;">
       <div class="balance-label" style="font-size:0.875rem;opacity:0.9;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px" id="walletTicker">Saldo</div>
       <div class="wallet-balance" style="font-size:2.5rem;font-weight:700">--</div>
       <div class="wallet-fiat" id="walletFiat" style="margin-top:6px;font-size:1rem;opacity:0.95">&nbsp;</div>
@@ -509,6 +519,7 @@ export function renderChainSelector(chainsList) {
     const wb = document.querySelector('.wallet-balance');
     const addrHolder = document.getElementById('addressHolder');
     const tickerEl = document.getElementById('walletTicker');
+    const chainIcon = document.getElementById('chainIcon');
     
     if (window._walletResults) {
       const r = window._walletResults.find(x => x.chain === window._activeChain);
@@ -518,6 +529,15 @@ export function renderChainSelector(chainsList) {
         
         if (wb) wb.textContent = `${balanceStr} ${ticker}`;
         if (tickerEl) tickerEl.textContent = `${ticker} Saldo`;
+        
+        // Update chain icon
+        if (chainIcon && CHAIN_ICONS[window._activeChain]) {
+          chainIcon.src = CHAIN_ICONS[window._activeChain];
+          chainIcon.alt = `${window._activeChain} icon`;
+          chainIcon.style.display = 'block';
+        } else if (chainIcon) {
+          chainIcon.style.display = 'none';
+        }
         
         // Update abbreviated address
         if (addrHolder && r.address && r.address !== 'N/A') {
@@ -541,6 +561,7 @@ export function updateWalletPanelBalances(results) {
   const wb = document.querySelector('.wallet-balance');
   const tickerEl = document.getElementById('walletTicker');
   const addrHolder = document.getElementById('addressHolder');
+  const chainIcon = document.getElementById('chainIcon');
   
   if (!wb) {
     console.warn('⚠️ wallet-balance element not found');
@@ -551,6 +572,7 @@ export function updateWalletPanelBalances(results) {
     wb.textContent = '--';
     if (tickerEl) tickerEl.textContent = 'Saldo';
     if (addrHolder) addrHolder.textContent = 'Nessun indirizzo';
+    if (chainIcon) chainIcon.style.display = 'none';
     return;
   }
   
@@ -559,6 +581,15 @@ export function updateWalletPanelBalances(results) {
   const primary = results.find(r => r.chain === activeChain) || results[0];
   const balanceStr = primary.balance || '0';
   const ticker = getTickerForChain(primary.chain);
+  
+  // Update chain icon
+  if (chainIcon && CHAIN_ICONS[activeChain]) {
+    chainIcon.src = CHAIN_ICONS[activeChain];
+    chainIcon.alt = `${activeChain} icon`;
+    chainIcon.style.display = 'block';
+  } else if (chainIcon) {
+    chainIcon.style.display = 'none';
+  }
   
   wb.textContent = `${balanceStr} ${ticker}`;
   // Update fiat display after setting balance

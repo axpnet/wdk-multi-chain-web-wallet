@@ -26,13 +26,13 @@ export function showInitializationPanel(statusEl, seedPhrase, onSuccess) {
   list.style.gap = '12px';
   list.style.marginTop = '16px';
   
-  // Icon mapping for chains
+  // Official chain icons from CoinGecko
   const chainIcons = {
-    ethereum: 'trending-up',
-    polygon: 'hexagon',
-    bsc: 'zap',
-    solana: 'sun',
-    ton: 'layers'
+    ethereum: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
+    polygon: 'https://assets.coingecko.com/coins/images/4713/small/matic-token-icon.png',
+    bsc: 'https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png',
+    solana: 'https://assets.coingecko.com/coins/images/4128/small/solana.png',
+    ton: 'https://assets.coingecko.com/coins/images/17980/small/ton_symbol.png'
   };
   
   const localChecks = {};
@@ -47,11 +47,11 @@ export function showInitializationPanel(statusEl, seedPhrase, onSuccess) {
       button.classList.add('selected');
     }
     
-    const iconName = chainIcons[ch.name] || 'circle';
+    const iconUrl = chainIcons[ch.name] || '';
     
     button.innerHTML = `
       <div class="chain-btn-icon">
-        <i data-feather="${iconName}"></i>
+        ${iconUrl ? `<img src="${iconUrl}" alt="${ch.name}" style="width:32px;height:32px;border-radius:50%">` : '<i data-feather="circle"></i>'}
       </div>
       <div class="chain-btn-label">${ch.name.toUpperCase()}</div>
       <div class="chain-btn-check">
@@ -71,7 +71,7 @@ export function showInitializationPanel(statusEl, seedPhrase, onSuccess) {
     list.appendChild(button);
   });
   
-  // Replace feather icons after rendering
+  // Replace feather icons for check marks
   setTimeout(() => {
     if (window.feather && typeof window.feather.replace === 'function') {
       window.feather.replace();
