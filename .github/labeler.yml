@@ -1,0 +1,42 @@
+# Auto labeler configuration
+# Labels PRs based on changed files
+
+documentation:
+  - '**/*.md'
+  - 'docs/**/*'
+  - 'public/docs/**/*'
+
+dependencies:
+  - 'package.json'
+  - 'package-lock.json'
+
+ci/cd:
+  - '.github/workflows/**'
+  - '.github/**'
+
+frontend:
+  - '**/*.js'
+  - '**/*.css'
+  - '**/*.html'
+
+configuration:
+  - 'config.js'
+  - 'vite.config.js'
+  - 'manifest.webmanifest'
+
+chains:
+  - 'chains/**'
+
+security:
+  - 'modules/secure_storage.js'
+  - 'modules/wallet_manager.js'
+  - 'SECURITY_GUIDE.md'
+
+ui:
+  - 'style.css'
+  - 'modules/ui_utils.js'
+  - 'modules/wallet_ui.js'
+
+pwa:
+  - 'manifest.webmanifest'
+  - 'sw.js'

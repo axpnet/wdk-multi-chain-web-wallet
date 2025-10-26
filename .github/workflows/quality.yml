@@ -1,0 +1,170 @@
+name: Code Quality & Security
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run weekly on Monday at 00:00 UTC
+    - cron: '0 0 * * 1'
+
+jobs:
+  code-quality:
+    name: Code Quality Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: 📦 Install dependencies
+        run: npm ci
+      
+      - name: 🔍 Run ESLint
+        run: npm run lint
+        continue-on-error: true
+      
+      - name: 💅 Check Prettier formatting
+        run: npx prettier --check "**/*.{js,json,css,md}"
+        continue-on-error: true
+      
+      - name: 📊 Code complexity analysis
+        run: |
+          echo "📊 Running complexity analysis..."
+          npx jscpd --pattern "**/*.js" --ignore "node_modules/**,dist/**" || true
+        continue-on-error: true
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      security-events: write
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: 📦 Install dependencies
+        run: npm ci
+      
+      - name: 🔒 Run npm audit
+        run: |
+          echo "🔍 Checking for security vulnerabilities..."
+          npm audit --audit-level=moderate || true
+        continue-on-error: true
+      
+      - name: 🛡️ Dependency vulnerability scan
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+      
+      - name: 📋 List outdated packages
+        run: |
+          echo "📦 Checking for outdated dependencies..."
+          npm outdated || true
+        continue-on-error: true
+
+  lighthouse-audit:
+    name: Lighthouse Performance Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: 📦 Install dependencies
+        run: npm ci
+      
+      - name: 🏗️ Build project
+        run: npm run build
+      
+      - name: 🚀 Serve built app
+        run: npx serve dist -l 3000 &
+        
+      - name: ⏳ Wait for server
+        run: npx wait-on http://localhost:3000
+      
+      - name: 🔆 Run Lighthouse
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          urls: |
+            http://localhost:3000
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+        continue-on-error: true
+
+  bundle-analysis:
+    name: Bundle Size Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: 📦 Install dependencies
+        run: npm ci
+      
+      - name: 🏗️ Build project
+        run: npm run build
+      
+      - name: 📊 Analyze bundle size
+        run: |
+          echo "📦 Bundle size analysis:"
+          du -sh dist/
+          echo ""
+          echo "📄 Individual file sizes:"
+          du -h dist/assets/* | sort -h
+        
+      - name: 💬 Comment bundle size
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const fs = require('fs');
+            const { execSync } = require('child_process');
+            
+            const size = execSync('du -sh dist/').toString().split('\t')[0];
+            
+            const comment = `## 📦 Bundle Size Report
+            
+            Total bundle size: **${size}**
+            
+            Build completed successfully! ✅`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+        continue-on-error: true

@@ -1,0 +1,100 @@
+name: Dependency Updates
+
+on:
+  schedule:
+    # Run every Monday at 9:00 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  update-dependencies:
+    name: Check & Update Dependencies
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: 📦 Install dependencies
+        run: npm ci
+      
+      - name: 🔍 Check for updates
+        id: check_updates
+        run: |
+          echo "Checking for outdated packages..."
+          npm outdated --json > outdated.json || true
+          
+          if [ -s outdated.json ]; then
+            echo "HAS_UPDATES=true" >> $GITHUB_OUTPUT
+            echo "📦 Found outdated packages"
+          else
+            echo "HAS_UPDATES=false" >> $GITHUB_OUTPUT
+            echo "✅ All packages are up to date"
+          fi
+      
+      - name: 📊 Display outdated packages
+        if: steps.check_updates.outputs.HAS_UPDATES == 'true'
+        run: |
+          echo "📋 Outdated packages:"
+          npm outdated || true
+      
+      - name: ⬆️ Update minor and patch versions
+        if: steps.check_updates.outputs.HAS_UPDATES == 'true'
+        run: |
+          echo "Updating minor and patch versions..."
+          npm update --save
+      
+      - name: 🧪 Test updated dependencies
+        if: steps.check_updates.outputs.HAS_UPDATES == 'true'
+        run: |
+          npm run build
+          echo "✅ Build successful with updated dependencies"
+      
+      - name: 📝 Create Pull Request
+        if: steps.check_updates.outputs.HAS_UPDATES == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore: update dependencies (automated)'
+          title: '🤖 Automated Dependency Updates'
+          body: |
+            ## 📦 Dependency Updates
+            
+            This PR automatically updates minor and patch versions of dependencies.
+            
+            ### ✅ Checks Performed:
+            - Build test passed
+            - No breaking changes expected
+            
+            ### 📋 Updated packages:
+            See the package.json changes for details.
+            
+            ---
+            
+            🤖 This PR was created automatically by GitHub Actions.
+            Please review the changes before merging.
+          branch: automated-dependency-updates
+          delete-branch: true
+          labels: |
+            dependencies
+            automated
+      
+      - name: ✅ Summary
+        run: |
+          if [ "${{ steps.check_updates.outputs.HAS_UPDATES }}" == "true" ]; then
+            echo "✅ Dependency update PR created"
+          else
+            echo "✅ All dependencies are up to date"
+          fi
