@@ -24,6 +24,8 @@ if (!appEl) {
 
 // === CREATE TOPBAR ===
 
+import { getNetworkMode, setNetworkMode } from './modules/network.js';
+
 function createTopbar() {
   let topbar = document.querySelector('.topbar');
   
@@ -33,18 +35,22 @@ function createTopbar() {
     topbar.innerHTML = `
       <div class="topbar-content">
         <div class="logo">
-          <i data-feather="briefcase" class="logo-icon"></i>
-          <span class="logo-text">WDK Wallet</span>
+          <i data-feather=\"briefcase\" class=\"logo-icon\"></i>
+          <span class=\"logo-text\">WDK Wallet</span>
         </div>
-        <div style="display:flex;align-items:center;gap:12px">
-          <div class="topbar-links">
-          <a href="#" id="topbarGuida">Guida</a>
-          <a href="#" id="topbarSicurezza">Sicurezza</a>
+        <div style=\"display:flex;align-items:center;gap:12px\">
+          <div class=\"topbar-links\">
+          <a href=\"#\" id=\"topbarGuida\">Guida</a>
+          <a href=\"#\" id=\"topbarSicurezza\">Sicurezza</a>
           </div>
-          <div class="theme-switch">
-            <button id="themeAuto" class="btn btn-sm">Auto</button>
-            <button id="themeLight" class="btn btn-sm">Light</button>
-            <button id="themeDark" class="btn btn-sm">Dark</button>
+          <div class=\"theme-switch\">
+            <button id=\"themeAuto\" class=\"btn btn-sm\">Auto</button>
+            <button id=\"themeLight\" class=\"btn btn-sm\">Light</button>
+            <button id=\"themeDark\" class=\"btn btn-sm\">Dark</button>
+          </div>
+          <div class=\"theme-switch\" id=\"networkSwitch\" title=\"Rete\">
+            <button id=\"netTest\" class=\"btn btn-sm\">Testnet</button>
+            <button id=\"netMain\" class=\"btn btn-sm\">Mainnet</button>
           </div>
         </div>
       </div>
@@ -69,6 +75,43 @@ function createTopbar() {
         e.preventDefault();
         const base = (import.meta && import.meta.env && import.meta.env.BASE_URL) ? import.meta.env.BASE_URL : '/';
         showMarkdownModal('🔒 Guida alla Sicurezza', `${base}docs/security.it.md`);
+      });
+    }
+
+    // Network switch logic
+    const mode = getNetworkMode();
+    const netTest = topbar.querySelector('#netTest');
+    const netMain = topbar.querySelector('#netMain');
+    if (netTest && netMain) {
+      const updateActive = () => {
+        if (getNetworkMode() === 'testnet') {
+          netTest.classList.add('active');
+          netMain.classList.remove('active');
+        } else {
+          netMain.classList.add('active');
+          netTest.classList.remove('active');
+        }
+      };
+      updateActive();
+      netTest.addEventListener('click', (e) => {
+        e.preventDefault();
+        const oldMode = getNetworkMode();
+        setNetworkMode('testnet');
+        updateActive();
+        if (oldMode !== 'testnet') {
+          // Network changed - trigger refresh without full reload
+          window.dispatchEvent(new CustomEvent('network-mode-changed', { detail: { mode: 'testnet' } }));
+        }
+      });
+      netMain.addEventListener('click', (e) => {
+        e.preventDefault();
+        const oldMode = getNetworkMode();
+        setNetworkMode('mainnet');
+        updateActive();
+        if (oldMode !== 'mainnet') {
+          // Network changed - trigger refresh without full reload
+          window.dispatchEvent(new CustomEvent('network-mode-changed', { detail: { mode: 'mainnet' } }));
+        }
       });
     }
   

@@ -69,10 +69,10 @@ export function renderWalletReadyPanel() {
     
     <div style="margin-top:24px;text-align:center">
       <button class="btn btn-sm btn-outline-primary" id="securitySettingsBtn">
-        <i data-feather="lock" style="vertical-align:middle"></i> Sicurezza
+        <i data-feather="settings" style="vertical-align:middle"></i> Impostazioni
       </button>
       <button class="btn btn-sm btn-outline-danger ms-2" id="resetWalletBtn">
-        🔄 Nuovo Wallet
+        <i data-feather="refresh-cw" style="vertical-align:middle"></i> Nuovo Wallet
       </button>
     </div>
   `;
@@ -193,6 +193,29 @@ export function renderWalletReadyPanel() {
       window.feather.replace();
     }
   } catch (e) { /* ignore */ }
+  
+  // Listen for network mode changes and refresh balances
+  setupNetworkToggleListener();
+}
+
+// === NETWORK TOGGLE LISTENER ===
+
+function setupNetworkToggleListener() {
+  const handler = async (e) => {
+    console.log('🔄 Network mode changed to:', e.detail.mode);
+    showNotification(`Passaggio a ${e.detail.mode === 'testnet' ? 'Testnet' : 'Mainnet'}...`, 'info');
+    
+    // Re-initialize wallet with current seed and new network endpoints
+    if (window._currentSeed && window._walletResults) {
+      // Re-fetch balances with new RPC endpoints
+      const { initializeWalletFromSeed } = await import('./wallet_init.js');
+      await initializeWalletFromSeed(window._currentSeed);
+    }
+  };
+  
+  // Remove old listener if exists to avoid duplicates
+  window.removeEventListener('network-mode-changed', handler);
+  window.addEventListener('network-mode-changed', handler);
 }
 
 function setupInstallCTA() {
@@ -246,7 +269,7 @@ function showSecuritySettingsDialog() {
   modal.style.maxWidth = '500px';
   modal.innerHTML = `
     <h5 style="padding:20px 24px;border-bottom:1px solid var(--border);margin:0">
-      <i data-feather="lock" class="modal-icon" style="vertical-align:middle"></i> Impostazioni Sicurezza
+      <i data-feather="settings" class="modal-icon" style="vertical-align:middle"></i> Impostazioni
     </h5>
     <div class="wdk-modal-body">
       ${!hasSeed ? `

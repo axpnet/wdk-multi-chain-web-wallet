@@ -16,6 +16,9 @@
   --text-secondary: #64748b;
   --text-muted: #94a3b8;
   --border: #e2e8f0;
+  /* Add aliases used across custom components */
+  --border-color: #e2e8f0;
+  --bg-hover: #eef2f7;
   
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
   --shadow: 0 2px 8px rgba(0,0,0,0.08);
@@ -37,6 +40,8 @@
   --text-secondary: #cbd5e1;
   --text-muted: #64748b;
   --border: #334155;
+  --border-color: #334155;
+  --bg-hover: #233047;
   
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
   --shadow: 0 2px 8px rgba(0,0,0,0.4);
@@ -53,6 +58,8 @@
     --text-secondary: #cbd5e1;
     --text-muted: #64748b;
     --border: #334155;
+    --border-color: #334155;
+    --bg-hover: #233047;
     
     --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
     --shadow: 0 2px 8px rgba(0,0,0,0.4);
@@ -744,6 +751,16 @@ textarea.form-control {
 .d-none, .hidden { display: none; }
 .w-100 { width: 100%; }
 
+/* === LOGIN SCREEN === */
+
+.login-screen .wallet-item h5 {
+  color: var(--text-primary);
+}
+
+.wallet-panel h4 {
+  color: var(--text-primary) !important;
+}
+
 /* === RESPONSIVE === */
 
 @media (max-width: 640px) {
@@ -869,40 +886,47 @@ textarea.form-control {
 /* === WALLET INITIALIZATION RESULTS TABLE === */
 
 .wallet-results-table {
-  background: var(--bg-primary);
+  background: var(--bg-card) !important;
   border: 1px solid var(--border-color);
   border-radius: 8px;
   overflow: hidden;
+  color: var(--text-primary);
 }
 
 .wallet-results-table thead {
-  background: var(--bg-secondary);
+  background: var(--bg-secondary) !important;
 }
 
 .wallet-results-table thead th {
-  color: var(--text-primary);
+  color: var(--text-primary) !important;
   font-weight: 600;
   padding: 12px;
-  border-bottom: 2px solid var(--border-color);
+  border-bottom: 2px solid var(--border-color) !important;
+  background: var(--bg-secondary) !important;
+}
+
+.wallet-results-table tbody {
+  background: var(--bg-card) !important;
 }
 
 .wallet-results-table tbody tr {
-  background: var(--bg-card);
+  background: var(--bg-card) !important;
   transition: background var(--transition);
 }
 
 .wallet-results-table tbody tr:nth-child(even) {
-  background: var(--bg-secondary);
+  background: var(--bg-secondary) !important;
 }
 
 .wallet-results-table tbody tr:hover {
-  background: var(--bg-hover);
+  background: var(--bg-hover) !important;
 }
 
 .wallet-results-table tbody td {
   padding: 10px 12px;
-  border-bottom: 1px solid var(--border-color);
-  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+  background: inherit !important;
 }
 
 .wallet-results-table tbody td code {

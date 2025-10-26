@@ -17,6 +17,7 @@ let isManualSeedEntry = false;
 let walletInitialized = false;
 let walletName = '';
 let walletPassword = '';
+let derivationPath = '';
 
 // === HELPER: GET OR CREATE STATUS ELEMENT ===
 
@@ -350,12 +351,14 @@ function renderStep2(content) {
     showSeedVerificationUI(
       expected,
       statusEl,
-      (verified) => {
+      (verified, path) => {
         // Dopo la verifica, vai allo Step 3 (Inizializza)
         seedPhrase = verified;
+        derivationPath = isManualSeedEntry ? (path || '') : '';
         updateWizardStep(3);
       },
-      () => updateWizardStep(1)
+      () => updateWizardStep(1),
+      { allowDerivation: isManualSeedEntry }
     );
   }
   
@@ -392,6 +395,16 @@ function renderStep3(content) {
       const wizControls = wizardEl?.querySelector('.wizard-controls');
       if (wizSteps) wizSteps.style.display = 'none';
       if (wizControls) wizControls.style.display = 'none';
+
+      // Aggiorna il contenuto del wizard per riflettere lo Step 5 (post-inizializzazione)
+      if (wizardContentEl) {
+        wizardContentEl.innerHTML = `
+          <div style="max-width:720px;margin:0 auto;text-align:center">
+            <strong>Step 5 - Wallet inizializzato</strong>
+            <div class="small text-muted mt-2">Avvia il wallet per gestire indirizzi, bilanci e inviare o ricevere fondi.</div>
+          </div>
+        `;
+      }
       
       setTimeout(() => {
         addOpenWalletButton(statusEl);
@@ -421,6 +434,7 @@ function addOpenWalletButton(statusEl) {
   const btn = document.createElement('div');
   btn.id = 'openWalletFromResults';
   btn.className = 'text-center mt-4';
+  btn.style.paddingBottom = '16px';
   btn.innerHTML = `
     <button class="btn btn-lg btn-primary d-inline-flex align-items-center gap-2" id="openWalletBtn">
       <i data-feather="arrow-right-circle"></i>
@@ -465,6 +479,10 @@ export async function openWalletPanel() {
         window._currentWalletId = wallet.id;
         window._currentWalletName = wallet.name;
         window._currentSeed = seedPhrase;
+        
+        // Set as active wallet in localStorage (important for getActiveWallet())
+        const { setActiveWallet } = await import('./wallet_manager.js');
+        setActiveWallet(wallet.id);
         
         console.log('✅ Wallet salvato con successo:', wallet);
         showNotification(`Wallet "${wallet.name}" salvato con successo!`, 'success');

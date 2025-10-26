@@ -78,13 +78,21 @@ export function showGeneratedSeedUI(mnemonic, statusEl, onSaved) {
 
 // === SEED VERIFICATION UI ===
 
-export function showSeedVerificationUI(expectedMnemonic, statusEl, onVerified, onCancel) {
+export function showSeedVerificationUI(expectedMnemonic, statusEl, onVerified, onCancel, options = {}) {
+  const isManual = !(expectedMnemonic && expectedMnemonic.trim());
   const container = document.createElement('div');
   container.className = 'card-body';
   container.innerHTML = `
     <h5>Verifica la tua Seed</h5>
     <div class="verify-hint small text-muted">Incolla la seed che hai salvato (verifica per procedere)</div>
     <textarea id="verifySeed" class="verify-area form-control" rows="3" placeholder="Incolla qui la seed..."></textarea>
+    ${options.allowDerivation && isManual ? `
+      <div class="mt-2">
+        <label class="form-label" for="derivationPathInput">Percorso di derivazione (opzionale)</label>
+        <input type="text" id="derivationPathInput" class="form-control" placeholder="es. EVM: m/44'/60'/0'/0  |  Solana: m/44'/501'/0'  |  TON: m/44'/607'/0'">
+        <small class="text-muted">Specifica un percorso BIP44 per inizializzare un wallet specifico. Se vuoto, useremo i default per ogni chain.</small>
+      </div>
+    ` : ''}
     <div class="d-flex align-items-center justify-content-between mt-2">
       <div>
         <span class="badge rounded-pill bg-secondary" id="seedValidityBadge">In attesa…</span>
@@ -182,12 +190,14 @@ export function showSeedVerificationUI(expectedMnemonic, statusEl, onVerified, o
     const vRaw = document.getElementById('verifySeed').value;
     const v = vRaw.trim().replace(/\s+/g, ' ').toLowerCase();
     const hasExpected = !!(expectedMnemonic && expectedMnemonic.trim());
+    const pathInput = document.getElementById('derivationPathInput');
+    const derivationPath = pathInput ? pathInput.value.trim() : '';
     
     if (hasExpected) {
       const expected = expectedMnemonic.trim().replace(/\s+/g, ' ').toLowerCase();
       if (v === expected) {
         showNotification('success', 'Seed verificata con successo. Ora puoi inizializzare il wallet.');
-        if (onVerified) onVerified(expectedMnemonic);
+        if (onVerified) onVerified(expectedMnemonic, derivationPath || null);
       } else {
         showNotification('error', 'Seed non corrisponde. Riprova.');
       }
@@ -196,7 +206,7 @@ export function showSeedVerificationUI(expectedMnemonic, statusEl, onVerified, o
       const isValid = validateSeed(v);
       if (isValid) {
         showNotification('success', 'Seed valida. Ora puoi inizializzare il wallet.');
-        if (onVerified) onVerified(v);
+        if (onVerified) onVerified(v, derivationPath || null);
       } else {
         showNotification('error', 'Seed non valida. Controlla le parole e riprova.');
       }
