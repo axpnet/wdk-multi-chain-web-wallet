@@ -12,7 +12,7 @@ export function initToastSystem() {
   }
 }
 
-export function showNotification(type, message, timeout = 4000) {
+export function showNotification(message, type = 'info', timeout = 4000) {
   if (!toastWrap) initToastSystem();
   
   const el = document.createElement('div');
@@ -38,15 +38,15 @@ export async function ajaxAction(promiseFactory, {
   successMsg = 'Fatto',
   errorMsg = 'Errore'
 } = {}) {
-  const t = showNotification('info', pendingMsg, 0);
+  const t = showNotification(pendingMsg, 'info', 0);
   try {
     const res = await promiseFactory();
     hideToast(t);
-    showNotification('success', successMsg);
+    showNotification(successMsg, 'success');
     return res;
   } catch (err) {
     hideToast(t);
-    showNotification('error', `${errorMsg}: ${err.message || err}`);
+    showNotification(`${errorMsg}: ${err.message || err}`, 'error');
     throw err;
   }
 }

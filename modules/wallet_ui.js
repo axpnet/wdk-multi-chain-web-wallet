@@ -209,11 +209,18 @@ function setupNetworkToggleListener() {
   }
   
   _networkToggleHandler = async (e) => {
-    console.log('🔄 Network mode changed to:', e.detail.mode);
-    showNotification(`Passaggio a ${e.detail.mode === 'testnet' ? 'Testnet' : 'Mainnet'}...`, 'info');
+    const newMode = e.detail.mode;
+    const oldMode = newMode === 'testnet' ? 'mainnet' : 'testnet';
+    
+    console.log(`🔄 Network mode changed from ${oldMode} to ${newMode}`);
     
     // Re-initialize wallet with current seed and new network endpoints
     if (window._currentSeed && window._walletResults) {
+      const fromLabel = oldMode === 'testnet' ? 'Testnet' : 'Mainnet';
+      const toLabel = newMode === 'testnet' ? 'Testnet' : 'Mainnet';
+      
+      showNotification(`Cambio da ${fromLabel} a ${toLabel}...`, 'info');
+      
       // Re-fetch balances with new RPC endpoints
       const { initializeWalletFromSeed } = await import('./wallet_init.js');
       await initializeWalletFromSeed(window._currentSeed);

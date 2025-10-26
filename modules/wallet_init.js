@@ -104,7 +104,7 @@ export function showInitializationPanel(statusEl, seedPhrase, onSuccess) {
   initNow.onclick = async () => {
     const selected = Object.keys(localChecks).filter(k => localChecks[k].checked);
     if (!selected.length) {
-      showNotification('error', 'Seleziona almeno una chain');
+      showNotification('Seleziona almeno una chain', 'error');
       return;
     }
     await initWithSeed(seedPhrase, selected, statusEl, onSuccess);
@@ -115,7 +115,7 @@ export function showInitializationPanel(statusEl, seedPhrase, onSuccess) {
 
 export async function initWithSeed(seed, selectedChainNames, statusEl, onSuccess) {
   if (!seed || !bip39.validateMnemonic(seed)) {
-    showNotification('error', 'Seed non valida');
+    showNotification('Seed non valida', 'error');
     return;
   }
   
@@ -124,7 +124,7 @@ export async function initWithSeed(seed, selectedChainNames, statusEl, onSuccess
     .filter(Boolean);
   
   if (!selectedChains.length) {
-    showNotification('error', 'Nessuna chain valida selezionata');
+    showNotification('Nessuna chain valida selezionata', 'error');
     return;
   }
   
