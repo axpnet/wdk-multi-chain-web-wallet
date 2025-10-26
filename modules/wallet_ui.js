@@ -39,7 +39,6 @@ export function renderWalletReadyPanel() {
           <div class="small text-muted">Multi-chain wallet pronto all'uso</div>
         </div>
         <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-          <div id="installAppHolder"></div>
           <div id="chainSelectHolder"></div>
           <div id="currencySelectHolder"></div>
           <button class="btn btn-sm btn-outline-danger" id="logoutBtn" title="Logout">
@@ -200,8 +199,16 @@ export function renderWalletReadyPanel() {
 
 // === NETWORK TOGGLE LISTENER ===
 
+// Global handler to avoid duplicate listeners
+let _networkToggleHandler = null;
+
 function setupNetworkToggleListener() {
-  const handler = async (e) => {
+  // Remove old listener if exists to avoid duplicates
+  if (_networkToggleHandler) {
+    window.removeEventListener('network-mode-changed', _networkToggleHandler);
+  }
+  
+  _networkToggleHandler = async (e) => {
     console.log('🔄 Network mode changed to:', e.detail.mode);
     showNotification(`Passaggio a ${e.detail.mode === 'testnet' ? 'Testnet' : 'Mainnet'}...`, 'info');
     
@@ -213,9 +220,7 @@ function setupNetworkToggleListener() {
     }
   };
   
-  // Remove old listener if exists to avoid duplicates
-  window.removeEventListener('network-mode-changed', handler);
-  window.addEventListener('network-mode-changed', handler);
+  window.addEventListener('network-mode-changed', _networkToggleHandler);
 }
 
 function setupInstallCTA() {
@@ -226,23 +231,30 @@ function setupInstallCTA() {
   const render = () => {
     holder.innerHTML = '';
     if (window._pwaInstallAvailable) {
-      const btn = document.createElement('button');
-      btn.className = 'btn btn-sm btn-outline-primary';
-      btn.textContent = '⬇️ Installa App';
-      btn.onclick = async () => {
+      const btn = document.createElement('a');
+      btn.href = '#';
+      btn.className = 'footer-link';
+      btn.innerHTML = '<i data-feather="download" style="width:14px;height:14px;vertical-align:middle"></i> Installa App';
+      btn.onclick = async (e) => {
+        e.preventDefault();
         if (window.promptPWAInstall) {
           try { await window.promptPWAInstall(); } catch {}
         }
       };
       holder.appendChild(btn);
+      
+      // Replace feather icon
+      if (window.feather && typeof window.feather.replace === 'function') {
+        window.feather.replace();
+      }
     } else {
       // Fallback: link guida installazione
       const a = document.createElement('a');
       a.href = 'https://support.google.com/chrome/answer/9658361?hl=it';
       a.target = '_blank';
       a.rel = 'noopener';
-      a.className = 'small text-muted';
-      a.textContent = 'Come installare l’app';
+      a.className = 'footer-link';
+      a.textContent = 'Come installare';
       holder.appendChild(a);
     }
   };

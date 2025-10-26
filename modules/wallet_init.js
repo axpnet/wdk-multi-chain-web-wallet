@@ -21,35 +21,62 @@ export function showInitializationPanel(statusEl, seedPhrase, onSuccess) {
   
   // Chain checkboxes
   const list = document.createElement('div');
-  list.style.display = 'flex';
-  list.style.flexWrap = 'wrap';
-  list.style.gap = '8px';
+  list.style.display = 'grid';
+  list.style.gridTemplateColumns = 'repeat(auto-fit, minmax(140px, 1fr))';
+  list.style.gap = '12px';
+  list.style.marginTop = '16px';
+  
+  // Icon mapping for chains
+  const chainIcons = {
+    ethereum: 'trending-up',
+    polygon: 'hexagon',
+    bsc: 'zap',
+    solana: 'sun',
+    ton: 'layers'
+  };
   
   const localChecks = {};
   CHAINS.forEach((ch, idx) => {
-    const box = document.createElement('label');
-    box.style.display = 'inline-flex';
-    box.style.alignItems = 'center';
-    box.style.gap = '6px';
-    box.style.padding = '6px 8px';
-    box.style.border = '1px solid rgba(0,0,0,0.06)';
-    box.style.borderRadius = '8px';
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'chain-select-btn';
+    button.dataset.chain = ch.name;
     
-    const input = document.createElement('input');
-    input.type = 'checkbox';
-    input.value = ch.name;
-    input.checked = ch.name === 'solana' || idx === 0;
-    localChecks[ch.name] = input;
+    const isChecked = ch.name === 'solana' || idx === 0;
+    if (isChecked) {
+      button.classList.add('selected');
+    }
     
-    const span = document.createElement('span');
-    span.textContent = ch.name.toUpperCase();
-    span.style.fontWeight = '600';
-    span.style.marginLeft = '4px';
+    const iconName = chainIcons[ch.name] || 'circle';
     
-    box.appendChild(input);
-    box.appendChild(span);
-    list.appendChild(box);
+    button.innerHTML = `
+      <div class="chain-btn-icon">
+        <i data-feather="${iconName}"></i>
+      </div>
+      <div class="chain-btn-label">${ch.name.toUpperCase()}</div>
+      <div class="chain-btn-check">
+        <i data-feather="check" style="width:16px;height:16px"></i>
+      </div>
+    `;
+    
+    // Store checkbox state
+    localChecks[ch.name] = { checked: isChecked };
+    
+    // Toggle on click
+    button.onclick = () => {
+      button.classList.toggle('selected');
+      localChecks[ch.name].checked = button.classList.contains('selected');
+    };
+    
+    list.appendChild(button);
   });
+  
+  // Replace feather icons after rendering
+  setTimeout(() => {
+    if (window.feather && typeof window.feather.replace === 'function') {
+      window.feather.replace();
+    }
+  }, 50);
   
   form.appendChild(list);
   
