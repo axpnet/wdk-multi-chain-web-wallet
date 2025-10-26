@@ -65,7 +65,8 @@ function createTopbar() {
     if (guidaLink) {
       guidaLink.addEventListener('click', (e) => {
         e.preventDefault();
-        const base = (import.meta && import.meta.env && import.meta.env.BASE_URL) ? import.meta.env.BASE_URL : '/';
+        // Auto-detect base path from current location
+        const base = window.location.pathname.replace(/\/[^\/]*$/, '/');
         showMarkdownModal('📚 Guida Introduttiva', `${base}docs/getting-started.it.md`);
       });
     }
@@ -73,7 +74,8 @@ function createTopbar() {
     if (sicurezzaLink) {
       sicurezzaLink.addEventListener('click', (e) => {
         e.preventDefault();
-        const base = (import.meta && import.meta.env && import.meta.env.BASE_URL) ? import.meta.env.BASE_URL : '/';
+        // Auto-detect base path from current location
+        const base = window.location.pathname.replace(/\/[^\/]*$/, '/');
         showMarkdownModal('🔒 Guida alla Sicurezza', `${base}docs/security.it.md`);
       });
     }
@@ -183,7 +185,8 @@ function setupApp() {
     if (footerGuida) {
       footerGuida.addEventListener('click', (e) => {
         e.preventDefault();
-        const base = (import.meta && import.meta.env && import.meta.env.BASE_URL) ? import.meta.env.BASE_URL : '/';
+        // Auto-detect base path from current location
+        const base = window.location.pathname.replace(/\/[^\/]*$/, '/');
         showMarkdownModal('📚 Guida Introduttiva', `${base}docs/getting-started.it.md`);
       });
     }
@@ -191,7 +194,8 @@ function setupApp() {
     if (footerSicurezza) {
       footerSicurezza.addEventListener('click', (e) => {
         e.preventDefault();
-        const base = (import.meta && import.meta.env && import.meta.env.BASE_URL) ? import.meta.env.BASE_URL : '/';
+        // Auto-detect base path from current location
+        const base = window.location.pathname.replace(/\/[^\/]*$/, '/');
         showMarkdownModal('🔒 Guida alla Sicurezza', `${base}docs/security.it.md`);
       });
     }
