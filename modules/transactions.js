@@ -10,16 +10,23 @@ import { getSeedPhrase } from './wizard.js';
 // === RECEIVE PICKER ===
 
 export function showReceivePicker() {
+  // If an active chain is set, open the QR directly for that chain
+  const walletState = window.walletState || {};
+  const activeChain = window._activeChain;
+  if (activeChain && walletState[activeChain]) {
+    showReceiveQR(activeChain, walletState[activeChain]);
+    return;
+  }
+
   const el = document.createElement('div');
   const bodyDiv = document.createElement('div');
   bodyDiv.className = 'wdk-modal-body';
-  
+
   const list = document.createElement('div');
   list.className = 'chain-list';
-  
-  const walletState = window.walletState || {};
+
   const chains = Object.keys(walletState);
-  
+
   if (chains.length === 0) {
     list.innerHTML = '<div class="text-muted text-center">Nessun wallet inizializzato. Inizializza il wallet prima.</div>';
   } else {
@@ -40,11 +47,11 @@ export function showReceivePicker() {
       list.appendChild(row);
     });
   }
-  
+
   bodyDiv.appendChild(list);
   el.innerHTML = `<h5>Ricevi - seleziona chain</h5>`;
   el.appendChild(bodyDiv);
-  
+
   const { backdrop } = showModal(el);
 }
 

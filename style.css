@@ -815,6 +815,16 @@ textarea.form-control {
 .app-footer a.app-footer-link { color: var(--text-primary); text-decoration: none; }
 .app-footer a.app-footer-link:hover { text-decoration: underline; }
 
+/* Ensure send button contrast in all themes */
+.wallet-action-btn.send-action {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  border-color: var(--primary) !important;
+}
+.wallet-action-btn.send-action:hover {
+  background: var(--primary-hover) !important;
+}
+
 /* === WALLET PANEL ENHANCEMENTS === */
 
 .wallet-panel {

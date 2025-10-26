@@ -43,7 +43,7 @@ export function renderWalletReadyPanel() {
           <div id="chainSelectHolder"></div>
           <div id="currencySelectHolder"></div>
           <button class="btn btn-sm btn-outline-danger" id="logoutBtn" title="Logout">
-            🚪 Esci
+            ⏻ Esci
           </button>
         </div>
       </div>
@@ -57,7 +57,7 @@ export function renderWalletReadyPanel() {
     </div>
     
     <div class="wallet-actions" style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap">
-      <button class="wallet-action-btn btn btn-lg btn-primary" onclick="window.showSendPicker()" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px 40px;border-radius:12px">
+      <button class="wallet-action-btn btn btn-lg btn-primary send-action" onclick="window.showSendPicker()" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px 40px;border-radius:12px">
         <span style="font-size:2rem">📤</span>
         <span style="font-weight:600">Invia</span>
       </button>
