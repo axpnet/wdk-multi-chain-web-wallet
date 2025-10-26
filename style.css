@@ -112,6 +112,16 @@ body {
   font-size: 1.5rem;
 }
 
+/* Feather / SVG icon styling: inherit color from text variables so icons follow theme */
+.logo-icon, .action-icon, .modal-icon {
+  color: var(--text-primary);
+  display: inline-flex;
+  vertical-align: middle;
+}
+.logo-icon svg { width: 1.5rem; height: 1.5rem; }
+.action-icon svg { width: 2rem; height: 2rem; }
+.modal-icon svg { width: 1.25rem; height: 1.25rem; }
+
 .theme-switch {
   display: flex;
   gap: 4px;

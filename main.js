@@ -33,7 +33,7 @@ function createTopbar() {
     topbar.innerHTML = `
       <div class="topbar-content">
         <div class="logo">
-          <span class="logo-icon">💼</span>
+          <i data-feather="briefcase" class="logo-icon"></i>
           <span class="logo-text">WDK Wallet</span>
         </div>
         <div class="theme-switch">
