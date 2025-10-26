@@ -372,11 +372,12 @@ function renderStep3(content) {
     </div>
   `;
   
+  // Nascondi i controlli inferiori: la card di inizializzazione fornisce già Annulla/Inizializza
   const controls = wizardEl.querySelector('.wizard-controls');
-  controls.innerHTML = `
-    <button class="btn btn-outline-secondary" id="wizBack2">Indietro</button>
-    <button class="btn btn-primary" id="wizInit">Inizializza</button>
-  `;
+  if (controls) {
+    controls.innerHTML = '';
+    controls.style.display = 'none';
+  }
   
   // Nascondi textarea seed e mostra subito il form di inizializzazione
   const statusEl = getOrCreateStatusEl();
@@ -396,29 +397,15 @@ function renderStep3(content) {
         addOpenWalletButton(statusEl);
       }, 300);
     });
+    // Rebind del bottone "Annulla" per tornare allo step precedente
+    setTimeout(() => {
+      const cancelBtn = document.getElementById('initCancel');
+      if (cancelBtn) {
+        cancelBtn.onclick = () => updateWizardStep(2);
+      }
+    }, 0);
   }
-  
-  setTimeout(() => {
-    const backBtn = document.getElementById('wizBack2');
-    if (backBtn) {
-      backBtn.onclick = () => {
-        // Torna allo step 2
-        walletInitialized = false;
-        updateWizardStep(2);
-      };
-    }
-    
-    const initBtn = document.getElementById('wizInit');
-    if (initBtn) {
-      initBtn.onclick = () => {
-        // Trigger inizializzazione manualmente (il form è già visibile)
-        const initNowBtn = document.getElementById('initNow');
-        if (initNowBtn) {
-          initNowBtn.click();
-        }
-      };
-    }
-  }, 0);
+  // Nessun controllo inferiore: la card gestisce i pulsanti. Il tasto "Annulla" riporta allo Step 2.
 }
 
 // === ADD OPEN WALLET BUTTON ===
