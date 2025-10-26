@@ -112,6 +112,10 @@ export function updateWizardStep(step) {
     wizardEl.style.display = 'block';
     wizardEl.classList.remove('hidden');
   }
+
+  // Ensure controls are visible by default for each step; specific steps may hide them
+  const controls = wizardEl?.querySelector('.wizard-controls');
+  if (controls) controls.style.display = '';
 }
 
 // === STEP 0: WALLET NAME & PASSWORD ===
@@ -332,12 +336,12 @@ function renderStep2(content) {
       <div class="small text-muted mt-2">Incolla la seed che hai salvato per verificare che sia corretta.</div>
     </div>
   `;
-  
+  // Hide the redundant bottom controls block entirely for a cleaner UI in this step
   const controls = wizardEl.querySelector('.wizard-controls');
-  controls.innerHTML = `
-    <button class="btn btn-outline-secondary" id="wizBack">Indietro</button>
-    <button class="btn btn-primary" id="wizVerify">Verifica seed</button>
-  `;
+  if (controls) {
+    controls.innerHTML = '';
+    controls.style.display = 'none';
+  }
   
   // Nascondi subito la seed se visibile e mostra la textarea
   const statusEl = getOrCreateStatusEl();
@@ -355,49 +359,7 @@ function renderStep2(content) {
     );
   }
   
-  setTimeout(() => {
-    const backBtn = document.getElementById('wizBack');
-    if (backBtn) {
-      backBtn.onclick = () => {
-        // Pulisci status e torna allo step 1
-        const statusEl = getOrCreateStatusEl();
-        if (statusEl) {
-          statusEl.innerHTML = '<div class="card-body"><p class="card-text">Pronto per generare seed e inizializzare wallet multi-chain!</p></div>';
-        }
-        isManualSeedEntry = false;
-        updateWizardStep(1);
-      };
-    }
-    
-    const verifyBtn = document.getElementById('wizVerify');
-    if (verifyBtn) {
-      verifyBtn.onclick = () => {
-        // Trigger verifica manualmente (il form è già visibile)
-        const verifySeed = document.getElementById('verifySeed');
-        const verifyDoBtn = document.getElementById('verifyDo');
-        if (verifyDoBtn) {
-          verifyDoBtn.click();
-        }
-      };
-
-      // Aggiorna stato del bottone in base alla validazione live
-      const syncVerifyState = (valid) => {
-        try {
-          const internalBtn = document.getElementById('verifyDo');
-          if (internalBtn) verifyBtn.disabled = internalBtn.disabled;
-          else verifyBtn.disabled = !valid;
-        } catch { /* noop */ }
-      };
-      // Ascolta evento di validazione live
-      const handler = (ev) => {
-        const valid = !!(ev && ev.detail && ev.detail.valid);
-        syncVerifyState(valid);
-      };
-      document.addEventListener('seed-validation-status', handler);
-      // Prime sync
-      setTimeout(() => syncVerifyState(false), 0);
-    }
-  }, 0);
+  // No bottom controls in this step; the top card provides its own Cancel/Verify actions
 }
 
 // === STEP 3: INITIALIZE ===
