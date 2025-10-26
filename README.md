@@ -78,6 +78,212 @@ npm run build
 npm run preview  # optional local preview of dist/
 ```
 
+## 🌐 Deployment & Installation
+
+This wallet is **extremely versatile** and can run in multiple environments:
+
+### 📱 As a Web App (Live Demo)
+
+**👉 [https://axpnet.github.io/wdk-multi-chain-web-wallet/](https://axpnet.github.io/wdk-multi-chain-web-wallet/)**
+
+- Access directly from any modern browser
+- No installation required
+- Works on desktop and mobile
+- Fully responsive design
+
+### 💾 As a Progressive Web App (PWA)
+
+**Install like a native app:**
+
+**Desktop:**
+- **Windows/Linux**: Chrome/Edge → Click "Install" icon in address bar
+- **macOS**: Chrome/Safari → "Add to Dock" or "Install"
+
+**Mobile:**
+- **Android**: Chrome → Menu → "Add to Home screen"
+- **iOS**: Safari → Share → "Add to Home Screen"
+
+**Benefits:**
+- 📲 App icon on your device
+- 🚀 Launches in standalone window (no browser UI)
+- ⚡ Faster loading with service worker
+- 📡 Basic offline functionality
+
+### 🖥️ Self-Hosting Options
+
+#### Option 1: Static Hosting (Recommended)
+
+Deploy on any static hosting platform:
+
+**Free Options:**
+```bash
+# 1. Build the app
+npm run build
+
+# 2. Deploy dist/ folder to:
+```
+
+- **GitHub Pages** (already configured) ✅
+- **Netlify**: Drag & drop `dist/` folder or connect GitHub repo
+- **Vercel**: `npx vercel --prod`
+- **Cloudflare Pages**: Connect repo, build command: `npm run build`, output: `dist`
+- **Firebase Hosting**: `firebase deploy`
+
+**Paid Hosting:**
+- Traditional web hosting (Aruba, SiteGround, etc.)
+- VPS with Nginx/Apache
+- Any host supporting static HTML/CSS/JS
+
+**Requirements:**
+- ✅ Static file hosting (HTML/CSS/JS)
+- ✅ HTTPS recommended (required for some PWA features)
+- ❌ NO server-side runtime needed (no PHP/Node.js/database)
+
+#### Option 2: Local/Intranet Deployment
+
+**For private networks or offline use:**
+
+```bash
+# After building
+npm run build
+
+# Serve locally with:
+npx serve dist -l 3001
+# or
+python -m http.server 8000 --directory dist
+
+# Access at:
+# http://localhost:3001
+# or from network: http://192.168.1.100:3001
+```
+
+**Use cases:**
+- Company intranet
+- Air-gapped environments (maximum security)
+- Local testing
+- Offline wallet access
+
+#### Option 3: Domain Configuration
+
+**Custom domain setup (e.g., `wallet.yourdomain.com`):**
+
+1. **DNS Configuration:**
+   ```
+   Type: CNAME
+   Name: wallet
+   Value: yourusername.github.io (or hosting provider)
+   ```
+
+2. **HTTPS Setup:**
+   - GitHub Pages: Enable HTTPS in repo settings
+   - Netlify/Vercel: Automatic HTTPS
+   - Self-hosted: Use Let's Encrypt (certbot)
+
+3. **Nginx Example** (VPS):
+   ```nginx
+   server {
+       listen 80;
+       server_name wallet.yourdomain.com;
+       root /var/www/wallet/dist;
+       index index.html;
+       
+       location / {
+           try_files $uri $uri/ /index.html;
+       }
+   }
+   ```
+
+### 📦 Desktop App (Electron)
+
+**Convert to native desktop application:**
+
+```bash
+# Install Electron
+npm install --save-dev electron electron-builder
+
+# Package for Windows/macOS/Linux
+npm run electron:build
+```
+
+**Outputs:** `.exe` (Windows), `.dmg` (macOS), `.AppImage` (Linux)
+
+**Benefits:**
+- Native OS integration
+- Offline-first
+- No browser required
+- Distributable executable
+
+### 📱 Mobile App (Capacitor)
+
+**Convert to native Android/iOS app:**
+
+```bash
+# Install Capacitor
+npm install @capacitor/core @capacitor/cli
+
+# Add platforms
+npx cap add android
+npx cap add ios
+
+# Build and run
+npm run build
+npx cap sync
+npx cap open android  # or ios
+```
+
+**Publish to:**
+- Google Play Store (Android)
+- Apple App Store (iOS)
+
+### 🔒 Security Considerations by Deployment
+
+| Deployment Type | Security Level | Best For |
+|----------------|----------------|----------|
+| **GitHub Pages** | ⭐⭐⭐⭐ | Public demo, open source |
+| **Self-hosted HTTPS** | ⭐⭐⭐⭐⭐ | Full control, custom domain |
+| **Local/Offline** | ⭐⭐⭐⭐⭐ | Maximum privacy, air-gapped |
+| **PWA Installed** | ⭐⭐⭐⭐ | Convenience + security |
+| **Electron Desktop** | ⭐⭐⭐⭐⭐ | Native integration |
+
+**Key Points:**
+- 🔐 All encryption happens **client-side** (in your browser)
+- 🚫 Seed phrase **never leaves your device**
+- 🌐 HTTPS protects against man-in-the-middle attacks
+- 💾 Offline use = zero network exposure
+
+### ⚙️ Browser Compatibility
+
+**Supported:**
+- ✅ Chrome/Edge 90+ (Chromium-based)
+- ✅ Firefox 88+
+- ✅ Safari 14+
+- ✅ Opera 76+
+
+**Not Supported:**
+- ❌ Internet Explorer 11
+
+**Mobile:**
+- ✅ Android 5.0+ (Chrome)
+- ✅ iOS 11.3+ (Safari, limited PWA)
+
+### 📊 Deployment Checklist
+
+**Before going live:**
+- [ ] Update version in `package.json` and README badges
+- [ ] Test on target platform (desktop/mobile)
+- [ ] Verify HTTPS is enabled
+- [ ] Check PWA manifest and icons
+- [ ] Test offline functionality
+- [ ] Review security settings
+- [ ] Update documentation links
+- [ ] Create GitHub release tag
+
+**Recommended:**
+- [ ] Enable GitHub Pages via repo settings
+- [ ] Configure custom domain (optional)
+- [ ] Set up CI/CD for auto-deployment
+- [ ] Monitor with Google Analytics (optional)
+
 ## 🧩 Features in detail
 
 - Multi‑wallet
