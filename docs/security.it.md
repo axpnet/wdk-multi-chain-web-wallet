@@ -1,5 +1,3 @@
-# 🔒 Guida alla Sicurezza - WDK Wallet
-
 La sicurezza dei tuoi fondi è la **priorità assoluta**. Questa guida ti insegna come proteggere il tuo wallet e gestire le criptovalute in modo sicuro.
 
 ## 📋 Indice
