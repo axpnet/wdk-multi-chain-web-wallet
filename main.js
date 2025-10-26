@@ -59,14 +59,16 @@ function createTopbar() {
     if (guidaLink) {
       guidaLink.addEventListener('click', (e) => {
         e.preventDefault();
-        showMarkdownModal('📚 Guida Introduttiva', './docs/getting-started.it.md');
+        const base = (import.meta && import.meta.env && import.meta.env.BASE_URL) ? import.meta.env.BASE_URL : '/';
+        showMarkdownModal('📚 Guida Introduttiva', `${base}docs/getting-started.it.md`);
       });
     }
   
     if (sicurezzaLink) {
       sicurezzaLink.addEventListener('click', (e) => {
         e.preventDefault();
-        showMarkdownModal('🔒 Guida alla Sicurezza', './docs/security.it.md');
+        const base = (import.meta && import.meta.env && import.meta.env.BASE_URL) ? import.meta.env.BASE_URL : '/';
+        showMarkdownModal('🔒 Guida alla Sicurezza', `${base}docs/security.it.md`);
       });
     }
   
@@ -138,14 +140,16 @@ function setupApp() {
     if (footerGuida) {
       footerGuida.addEventListener('click', (e) => {
         e.preventDefault();
-        showMarkdownModal('📚 Guida Introduttiva', './docs/getting-started.it.md');
+        const base = (import.meta && import.meta.env && import.meta.env.BASE_URL) ? import.meta.env.BASE_URL : '/';
+        showMarkdownModal('📚 Guida Introduttiva', `${base}docs/getting-started.it.md`);
       });
     }
   
     if (footerSicurezza) {
       footerSicurezza.addEventListener('click', (e) => {
         e.preventDefault();
-        showMarkdownModal('🔒 Guida alla Sicurezza', './docs/security.it.md');
+        const base = (import.meta && import.meta.env && import.meta.env.BASE_URL) ? import.meta.env.BASE_URL : '/';
+        showMarkdownModal('🔒 Guida alla Sicurezza', `${base}docs/security.it.md`);
       });
     }
   
