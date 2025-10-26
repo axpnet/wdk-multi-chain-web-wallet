@@ -33,7 +33,7 @@ function createTopbar() {
     topbar.innerHTML = `
       <div class="topbar-content">
         <div class="logo">
-          <span class="logo-icon">💼</span>
+          <i data-feather="briefcase" class="logo-icon"></i>
           <span class="logo-text">WDK Wallet</span>
         </div>
         <div class="theme-switch">
@@ -64,10 +64,7 @@ function setupApp() {
   // PWA: register service worker (best-effort)
   try {
     if ('serviceWorker' in navigator) {
-      const swUrl = (import.meta && import.meta.env && import.meta.env.BASE_URL)
-        ? import.meta.env.BASE_URL + 'sw.js'
-        : './sw.js';
-      navigator.serviceWorker.register(swUrl).catch(() => {});
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
     }
   } catch {}
   

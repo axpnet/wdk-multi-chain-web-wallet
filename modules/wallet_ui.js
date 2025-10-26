@@ -34,7 +34,7 @@ export function renderWalletReadyPanel() {
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
         <div>
           <h4 style="margin:0;font-weight:700;cursor:${hasMultipleWallets ? 'pointer' : 'default'}" id="walletNameHeader">
-            💼 ${escapeHtml(walletName)} ${hasMultipleWallets ? '▼' : ''}
+            <i data-feather="briefcase" class="logo-icon" style="vertical-align:middle"></i> ${escapeHtml(walletName)} ${hasMultipleWallets ? '▼' : ''}
           </h4>
           <div class="small text-muted">Multi-chain wallet pronto all'uso</div>
         </div>
@@ -43,7 +43,7 @@ export function renderWalletReadyPanel() {
           <div id="chainSelectHolder"></div>
           <div id="currencySelectHolder"></div>
           <button class="btn btn-sm btn-outline-danger" id="logoutBtn" title="Logout">
-            🚪 Esci
+            <i data-feather="power" style="vertical-align:middle"></i> Esci
           </button>
         </div>
       </div>
@@ -57,19 +57,19 @@ export function renderWalletReadyPanel() {
     </div>
     
     <div class="wallet-actions" style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap">
-      <button class="wallet-action-btn btn btn-lg btn-primary" onclick="window.showSendPicker()" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px 40px;border-radius:12px">
-        <span style="font-size:2rem">📤</span>
+      <button class="wallet-action-btn btn btn-lg btn-primary send-action" onclick="window.showSendPicker()" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px 40px;border-radius:12px">
+        <i data-feather="send" class="action-icon"></i>
         <span style="font-weight:600">Invia</span>
       </button>
       <button class="wallet-action-btn btn btn-lg btn-outline-primary" onclick="window.showReceivePicker()" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px 40px;border-radius:12px">
-        <span style="font-size:2rem">📥</span>
+        <i data-feather="download" class="action-icon"></i>
         <span style="font-weight:600">Ricevi</span>
       </button>
     </div>
     
     <div style="margin-top:24px;text-align:center">
       <button class="btn btn-sm btn-outline-primary" id="securitySettingsBtn">
-        🔐 Sicurezza
+        <i data-feather="lock" style="vertical-align:middle"></i> Sicurezza
       </button>
       <button class="btn btn-sm btn-outline-danger ms-2" id="resetWalletBtn">
         🔄 Nuovo Wallet
@@ -186,6 +186,13 @@ export function renderWalletReadyPanel() {
   setupInstallCTA();
   
   console.log('✅ Wallet panel completamente renderizzato');
+
+  // Replace icon placeholders with Feather SVGs (if feather loaded)
+  try {
+    if (window.feather && typeof window.feather.replace === 'function') {
+      window.feather.replace();
+    }
+  } catch (e) { /* ignore */ }
 }
 
 function setupInstallCTA() {
@@ -239,7 +246,7 @@ function showSecuritySettingsDialog() {
   modal.style.maxWidth = '500px';
   modal.innerHTML = `
     <h5 style="padding:20px 24px;border-bottom:1px solid var(--border);margin:0">
-      🔐 Impostazioni Sicurezza
+      <i data-feather="lock" class="modal-icon" style="vertical-align:middle"></i> Impostazioni Sicurezza
     </h5>
     <div class="wdk-modal-body">
       ${!hasSeed ? `
@@ -402,6 +409,9 @@ function showSecuritySettingsDialog() {
       location.reload();
     };
   }
+
+  // Ensure modal icons are replaced
+  try { if (window.feather && typeof window.feather.replace === 'function') window.feather.replace(); } catch (e) {}
 }
 
 // === RENDER CHAIN SELECTOR ===
@@ -598,7 +608,7 @@ function showWalletSwitcher() {
   modal.style.maxWidth = '450px';
   modal.innerHTML = `
     <h5 style="padding:20px 24px;border-bottom:1px solid var(--border);margin:0">
-      💼 Cambia Wallet
+      <i data-feather="briefcase" class="modal-icon" style="vertical-align:middle"></i> Cambia Wallet
     </h5>
     <div class="wdk-modal-body">
       ${wallets.map(w => `
