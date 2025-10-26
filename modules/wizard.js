@@ -424,9 +424,11 @@ function renderStep3(content) {
       // e aggiungi un pulsante "Avvia il Wallet"
       walletInitialized = true;
       
-      // NASCONDI il pulsante Indietro dopo l'inizializzazione
-      const backBtn = document.getElementById('wizBack2');
-      if (backBtn) backBtn.style.display = 'none';
+      // NASCONDI wizard-steps e wizard-controls dopo l'inizializzazione
+      const wizSteps = wizardEl?.querySelector('.wizard-steps');
+      const wizControls = wizardEl?.querySelector('.wizard-controls');
+      if (wizSteps) wizSteps.style.display = 'none';
+      if (wizControls) wizControls.style.display = 'none';
       
       setTimeout(() => {
         addOpenWalletButton(statusEl);
@@ -469,14 +471,20 @@ function addOpenWalletButton(statusEl) {
   // Aggiungi pulsante "Avvia il Wallet" dopo la tabella
   const btn = document.createElement('div');
   btn.id = 'openWalletFromResults';
-  btn.className = 'text-center mt-3';
+  btn.className = 'text-center mt-4';
   btn.innerHTML = `
-    <button class="btn btn-lg btn-primary" id="openWalletBtn">
-      � Avvia il Wallet
+    <button class="btn btn-lg btn-primary d-inline-flex align-items-center gap-2" id="openWalletBtn">
+      <i data-feather="arrow-right-circle"></i>
+      <span>Avvia il Wallet</span>
     </button>
   `;
   
   statusEl.appendChild(btn);
+  
+  // Replace feather icons
+  if (window.feather && typeof window.feather.replace === 'function') {
+    window.feather.replace();
+  }
   
   setTimeout(() => {
     const openBtn = document.getElementById('openWalletBtn');

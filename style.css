@@ -866,6 +866,53 @@ textarea.form-control {
 }
 .topbar .topbar-links a:hover { color: var(--text-primary); text-decoration: underline; }
 
+/* === WALLET INITIALIZATION RESULTS TABLE === */
+
+.wallet-results-table {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.wallet-results-table thead {
+  background: var(--bg-secondary);
+}
+
+.wallet-results-table thead th {
+  color: var(--text-primary);
+  font-weight: 600;
+  padding: 12px;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.wallet-results-table tbody tr {
+  background: var(--bg-card);
+  transition: background var(--transition);
+}
+
+.wallet-results-table tbody tr:nth-child(even) {
+  background: var(--bg-secondary);
+}
+
+.wallet-results-table tbody tr:hover {
+  background: var(--bg-hover);
+}
+
+.wallet-results-table tbody td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.wallet-results-table tbody td code {
+  background: var(--bg-secondary);
+  color: var(--primary);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
 /* Ensure send button contrast in all themes */
 .wallet-action-btn.send-action {
   background: var(--primary) !important;

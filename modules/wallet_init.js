@@ -183,7 +183,7 @@ export async function initWithSeed(seed, selectedChainNames, statusEl, onSuccess
             <div class="card-body">
               <h5 class="card-title">Wallet Pronto su ${selectedChains.length} Chain!</h5>
               <small class="text-muted">(${numWords} parole)</small>
-              <table class="table table-striped mt-2">
+              <table class="table wallet-results-table mt-2">
                 <thead>
                   <tr>
                     <th>Chain</th>
