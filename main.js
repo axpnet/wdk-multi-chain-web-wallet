@@ -36,6 +36,7 @@ function createTopbar() {
           <i data-feather="briefcase" class="logo-icon"></i>
           <span class="logo-text">WDK Wallet</span>
         </div>
+<<<<<<< HEAD
         <div style="display:flex;align-items:center;gap:12px">
           <div class="topbar-links">
             <a href="./docs/getting-started.md" target="_blank" rel="noopener">Guida</a>
@@ -77,10 +78,7 @@ function setupApp() {
   // PWA: register service worker (best-effort)
   try {
     if ('serviceWorker' in navigator) {
-      const swUrl = (import.meta && import.meta.env && import.meta.env.BASE_URL)
-        ? import.meta.env.BASE_URL + 'sw.js'
-        : './sw.js';
-      navigator.serviceWorker.register(swUrl).catch(() => {});
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
     }
   } catch {}
   
