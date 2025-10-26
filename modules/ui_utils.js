@@ -70,16 +70,30 @@ export function showModal(contentEl) {
 // === MARKDOWN DOCUMENTATION MODAL ===
 
 export async function showMarkdownModal(title, mdPath) {
-  try {
-    // Fetch markdown file
-    const response = await fetch(mdPath);
-    if (!response.ok) {
-      throw new Error(`Impossibile caricare ${mdPath}`);
+  // Determine base path and language from mdPath
+  const basePath = mdPath.replace(/\.(it\.)?md$/, '');
+  const currentLang = mdPath.endsWith('.it.md') ? 'it' : 'en';
+  
+  // Function to load content for a specific language
+  async function loadContent(lang) {
+    const path = lang === 'it' ? `${basePath}.it.md` : `${basePath}.md`;
+    try {
+      const response = await fetch(path);
+      if (!response.ok) {
+        throw new Error(`Impossibile caricare ${path}`);
+      }
+      const markdown = await response.text();
+      return marked.parse(markdown);
+    } catch (error) {
+      showNotification('error', `Errore caricamento documentazione: ${error.message}`);
+      throw error;
     }
-    const markdown = await response.text();
-    
-    // Parse markdown to HTML using Marked.js
-    const htmlContent = marked.parse(markdown);
+  }
+  
+  try {
+    // Load initial content
+    const htmlContent = await loadContent(currentLang);
+    let activeLang = currentLang;
     
     // Create modal structure
     const modalContent = document.createElement('div');
@@ -87,7 +101,13 @@ export async function showMarkdownModal(title, mdPath) {
     modalContent.innerHTML = `
       <div class="markdown-modal-header">
         <h2>${title}</h2>
-        <button class="markdown-modal-close" aria-label="Chiudi">×</button>
+        <div class="markdown-modal-controls">
+          <div class="language-toggle">
+            <button class="lang-btn ${activeLang === 'it' ? 'active' : ''}" data-lang="it">IT</button>
+            <button class="lang-btn ${activeLang === 'en' ? 'active' : ''}" data-lang="en">EN</button>
+          </div>
+          <button class="markdown-modal-close" aria-label="Chiudi">×</button>
+        </div>
       </div>
       <div class="markdown-modal-body markdown-content">
         ${htmlContent}
@@ -96,6 +116,32 @@ export async function showMarkdownModal(title, mdPath) {
     
     // Show modal
     const { backdrop } = showModal(modalContent);
+    
+    // Language toggle handlers
+    const langButtons = modalContent.querySelectorAll('.lang-btn');
+    const bodyEl = modalContent.querySelector('.markdown-modal-body');
+    
+    langButtons.forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const newLang = btn.dataset.lang;
+        if (newLang === activeLang) return;
+        
+        // Update active state
+        langButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        // Load new content
+        try {
+          const newContent = await loadContent(newLang);
+          bodyEl.innerHTML = newContent;
+          activeLang = newLang;
+          // Scroll to top
+          bodyEl.scrollTop = 0;
+        } catch (error) {
+          // Error already shown in loadContent
+        }
+      });
+    });
     
     // Close button handler
     const closeBtn = modalContent.querySelector('.markdown-modal-close');

@@ -946,6 +946,44 @@ textarea.form-control {
   color: var(--text-primary);
 }
 
+.markdown-modal-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.language-toggle {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-primary);
+  border-radius: 6px;
+  padding: 3px;
+  border: 1px solid var(--border-color);
+}
+
+.lang-btn {
+  background: transparent;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+  text-transform: uppercase;
+}
+
+.lang-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+.lang-btn.active {
+  background: var(--primary);
+  color: white;
+}
+
 .markdown-modal-close {
   background: transparent;
   border: none;
@@ -972,6 +1010,32 @@ textarea.form-control {
   padding: 24px;
   overflow-y: auto;
   flex: 1;
+}
+
+/* Custom Scrollbar for Modal - Theme Aware */
+.markdown-modal-body::-webkit-scrollbar {
+  width: 10px;
+}
+
+.markdown-modal-body::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: 5px;
+}
+
+.markdown-modal-body::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: 5px;
+  transition: background var(--transition);
+}
+
+.markdown-modal-body::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Firefox scrollbar */
+.markdown-modal-body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--text-muted) var(--bg-secondary);
 }
 
 /* Markdown Content Styling */
@@ -1109,6 +1173,14 @@ textarea.form-control {
   
   .markdown-modal-header {
     padding: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .markdown-modal-controls {
+    width: 100%;
+    justify-content: space-between;
   }
   
   .markdown-modal-header h2 {
