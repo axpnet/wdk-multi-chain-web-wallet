@@ -4,14 +4,23 @@
   "description": "Multi-chain wallet professionale con supporto per Ethereum, Solana, Polygon, BSC, TON, Litecoin e altre blockchain",
   "type": "module",
   "private": true,
+  "main": "electron/main.cjs",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+  "build:electron": "vite build --base=./",
     "preview": "vite preview",
     "lint": "eslint . --ext .js --max-warnings=0 || echo 'Lint warnings found but continuing...'",
     "lint:fix": "eslint . --ext .js --fix",
     "format": "prettier --write \"**/*.{js,json,css,md}\"",
-    "clean": "rm -rf dist node_modules/.vite"
+  "clean": "rimraf dist node_modules/.vite",
+    "electron": "electron .",
+    "electron:dev": "concurrently -k \"npm:dev\" \"wait-on http://localhost:3000 && electron .\"",
+    "electron:pack": "npm run build:electron && electron-builder --dir",
+    "electron:build": "npm run build:electron && electron-builder",
+    "electron:build:win": "npm run build:electron && electron-builder -w",
+    "electron:build:mac": "npm run build:electron && electron-builder -m",
+    "electron:build:linux": "npm run build:electron && electron-builder -l"
   },
   "dependencies": {
     "@tetherto/wdk": "^1.0.0-beta.3",
@@ -41,7 +50,12 @@
     "vite-plugin-node-polyfills": "^0.24.0",
     "vite-plugin-wasm": "^3.5.0",
     "eslint": "^8.57.0",
-    "prettier": "^3.3.0"
+    "prettier": "^3.3.0",
+    "electron": "^30.0.0",
+    "electron-builder": "^24.13.3",
+    "concurrently": "^8.2.2",
+    "wait-on": "^7.2.0",
+    "rimraf": "^5.0.5"
   },
   "keywords": [
     "wallet",
@@ -74,4 +88,31 @@
     "url": "https://github.com/yourusername/wdk-wallet/issues"
   },
   "homepage": "https://github.com/yourusername/wdk-wallet#readme"
+  ,
+  "build": {
+    "appId": "com.axpdev.wdkwallet",
+    "productName": "WDK Wallet",
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "buildResources": "build"
+    },
+    "extraMetadata": {
+      "main": "electron/main.cjs"
+    },
+    "mac": {
+      "category": "public.app-category.finance",
+      "target": ["dmg", "zip"]
+    },
+    "win": {
+      "target": ["nsis", "zip"]
+    },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "category": "Finance"
+    }
+  }
 }

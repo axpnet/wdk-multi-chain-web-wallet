@@ -5,6 +5,7 @@
 [![CI/CD](https://github.com/axpnet/wdk-multi-chain-web-wallet/actions/workflows/ci.yml/badge.svg)](https://github.com/axpnet/wdk-multi-chain-web-wallet/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Deploy](https://img.shields.io/badge/deploy-GitHub%20Pages-blue)](https://axpnet.github.io/wdk-multi-chain-web-wallet/)
+[![Pre-release](https://img.shields.io/github/v/release/axpnet/wdk-multi-chain-web-wallet?include_prereleases&label=beta)](https://github.com/axpnet/wdk-multi-chain-web-wallet/releases)
 
 <div align="center">
   <p>
@@ -32,7 +33,18 @@ A lightweight, multi‑chain crypto wallet built with Vite + Vanilla JS. It runs
 - PWA ready: installable and offline‑friendly basics
 - Clean UI with toasts, modals, centered dialogs
 
-## 🧭 Project structure
+## � Supported Platforms & Devices
+
+- Web browsers: Chrome, Edge, Firefox, Safari (desktop & mobile)
+- PWA installabile: Windows, macOS, Linux, Android, iOS (con limiti PWA su iOS)
+- Desktop nativo (Electron): Windows (.exe), macOS (.dmg), Linux (.AppImage/.deb)
+- Mobile nativo (opzionale via Capacitor): Android/iOS
+
+Lingue/Docs:
+- English README (this page)
+- Documentazione in Italiano: vedi sezione Docs sotto e i file in `docs/*.it.md`
+
+## �🧭 Project structure
 
 ```
 wallet-multichain/
@@ -195,19 +207,27 @@ python -m http.server 8000 --directory dist
 
 ### 📦 Desktop App (Electron)
 
-**Convert to native desktop application:**
+Run as a native desktop application or build installers:
 
 ```bash
-# Install Electron
-npm install --save-dev electron electron-builder
+# Dev: launches Vite + Electron with live reload
+npm run electron:dev
 
-# Package for Windows/macOS/Linux
+# Build production web assets with correct base for Electron
+npm run build:electron
+
+# Package installers for all platforms (on their respective OSes)
 npm run electron:build
+
+# Or target a specific OS
+npm run electron:build:win   # Windows (.exe via NSIS)
+npm run electron:build:mac   # macOS (.dmg)
+npm run electron:build:linux # Linux (.AppImage, .deb)
 ```
 
-**Outputs:** `.exe` (Windows), `.dmg` (macOS), `.AppImage` (Linux)
+Outputs will be in the `dist/` and `dist_electron/` folders depending on target. Common artifacts: `.exe` (Windows), `.dmg` (macOS), `.AppImage`/`.deb` (Linux).
 
-**Benefits:**
+Benefits:
 - Native OS integration
 - Offline-first
 - No browser required
@@ -343,13 +363,22 @@ Online docs (GitHub Pages-ready):
 - docs/security.md – Security model summary (AES‑256‑GCM, PBKDF2, storage)
 - docs/getting-started.md – Short setup with links to Quick Start
 
-## � Credits & Acknowledgments
+## ⚙️ CI/CD e Automazioni
+
+Per mantenere il README focalizzato sul prodotto, la documentazione completa dei workflow GitHub Actions è stata spostata in una pagina dedicata. Trovi dettagli, stato e istruzioni qui:
+
+- Documentazione CI/CD: .github/README.md (GitHub Actions Workflows)
+- Tab “Actions” del repository: https://github.com/axpnet/wdk-multi-chain-web-wallet/actions
+
+Nel README manteniamo solo i badge di stato per un colpo d’occhio.
+
+## 🙌 Credits & Acknowledgments
 
 - © axpdev — info@axpdev.it
 - Powered by Vite, Web Crypto API, CoinGecko Simple Price API, and Bootstrap
 - Built with GitHub Copilot
 
-## �🛡️ Disclaimer
+## 🛡️ Disclaimer
 
 This project is for educational purposes. Use at your own risk. Always keep an offline seed backup and test on testnets before interacting with mainnet funds.
 
