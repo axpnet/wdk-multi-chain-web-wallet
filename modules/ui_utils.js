@@ -67,6 +67,49 @@ export function showModal(contentEl) {
   return { backdrop, modal };
 }
 
+// === MARKDOWN DOCUMENTATION MODAL ===
+
+export async function showMarkdownModal(title, mdPath) {
+  try {
+    // Fetch markdown file
+    const response = await fetch(mdPath);
+    if (!response.ok) {
+      throw new Error(`Impossibile caricare ${mdPath}`);
+    }
+    const markdown = await response.text();
+    
+    // Parse markdown to HTML using Marked.js
+    const htmlContent = marked.parse(markdown);
+    
+    // Create modal structure
+    const modalContent = document.createElement('div');
+    modalContent.className = 'markdown-modal-content';
+    modalContent.innerHTML = `
+      <div class="markdown-modal-header">
+        <h2>${title}</h2>
+        <button class="markdown-modal-close" aria-label="Chiudi">×</button>
+      </div>
+      <div class="markdown-modal-body markdown-content">
+        ${htmlContent}
+      </div>
+    `;
+    
+    // Show modal
+    const { backdrop } = showModal(modalContent);
+    
+    // Close button handler
+    const closeBtn = modalContent.querySelector('.markdown-modal-close');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => backdrop.remove());
+    }
+    
+    return backdrop;
+  } catch (error) {
+    showNotification('error', `Errore caricamento documentazione: ${error.message}`);
+    throw error;
+  }
+}
+
 // === THEME SYSTEM ===
 
 export function initThemeSystem(topbar) {

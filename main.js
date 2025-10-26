@@ -1,7 +1,7 @@
 // main.js - Entry point modulare con multi-wallet support
 // Multi-wallet routing: login screen if wallets exist, wizard if none
 import { CHAINS } from './config.js';
-import { initToastSystem, initThemeSystem } from './modules/ui_utils.js';
+import { initToastSystem, initThemeSystem, showMarkdownModal } from './modules/ui_utils.js';
 import { createWizard } from './modules/wizard.js';
 import { initAutoLock } from './modules/secure_storage.js';
 import { hasWallets } from './modules/wallet_manager.js';
@@ -38,8 +38,8 @@ function createTopbar() {
         </div>
         <div style="display:flex;align-items:center;gap:12px">
           <div class="topbar-links">
-            <a href="./docs/getting-started.md" target="_blank" rel="noopener">Guida</a>
-            <a href="./docs/security.md" target="_blank" rel="noopener">Sicurezza</a>
+          <a href="#" id="topbarGuida">Guida</a>
+          <a href="#" id="topbarSicurezza">Sicurezza</a>
           </div>
           <div class="theme-switch">
             <button id="themeAuto" class="btn btn-sm">Auto</button>
@@ -51,6 +51,24 @@ function createTopbar() {
     `;
     appEl.insertAdjacentElement('afterbegin', topbar);
   }
+  
+    // Attach event listeners to documentation links
+    const guidaLink = topbar.querySelector('#topbarGuida');
+    const sicurezzaLink = topbar.querySelector('#topbarSicurezza');
+  
+    if (guidaLink) {
+      guidaLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        showMarkdownModal('📚 Guida Introduttiva', './docs/getting-started.it.md');
+      });
+    }
+  
+    if (sicurezzaLink) {
+      sicurezzaLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        showMarkdownModal('🔒 Guida alla Sicurezza', './docs/security.it.md');
+      });
+    }
   
   return topbar;
 }
@@ -112,6 +130,24 @@ function setupApp() {
   
   // Initialize auto-lock system
   initAutoLock();
+  
+    // Attach event listeners to footer documentation links
+    const footerGuida = document.getElementById('footerGuida');
+    const footerSicurezza = document.getElementById('footerSicurezza');
+  
+    if (footerGuida) {
+      footerGuida.addEventListener('click', (e) => {
+        e.preventDefault();
+        showMarkdownModal('📚 Guida Introduttiva', './docs/getting-started.it.md');
+      });
+    }
+  
+    if (footerSicurezza) {
+      footerSicurezza.addEventListener('click', (e) => {
+        e.preventDefault();
+        showMarkdownModal('🔒 Guida alla Sicurezza', './docs/security.it.md');
+      });
+    }
   
   // ROUTING: Check for existing wallets
   if (hasWallets()) {
