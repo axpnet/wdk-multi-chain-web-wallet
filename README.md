@@ -8,6 +8,13 @@
 [![Pre-release](https://img.shields.io/github/v/release/axpnet/wdk-multi-chain-web-wallet?include_prereleases&label=beta)](https://github.com/axpnet/wdk-multi-chain-web-wallet/releases)
 
 <div align="center">
+  <strong>Languages / Lingue:</strong>
+  <a href="/README.md">English</a> ·
+  <a href="docs/getting-started.it.md">Italiano – Guida rapida</a> ·
+  <a href="docs/security.it.md">Sicurezza (IT)</a>
+</div>
+
+<div align="center">
   <p>
     <strong>Supported Blockchains</strong>
   </p>
