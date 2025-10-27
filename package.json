@@ -15,7 +15,7 @@
     "lint": "eslint . --ext .js --max-warnings=0 || echo 'Lint warnings found but continuing...'",
     "lint:fix": "eslint . --ext .js --fix",
     "format": "prettier --write \"**/*.{js,json,css,md}\"",
-  "clean": "rimraf dist node_modules/.vite",
+    "clean": "rimraf dist node_modules/.vite",
     "electron": "electron .",
     "electron:dev": "concurrently -k \"npm:dev\" \"wait-on http://localhost:3000 && electron .\"",
     "electron:pack": "npm run build:electron && electron-builder --dir",
@@ -32,7 +32,7 @@
     "@tetherto/wdk-wallet-ton": "^1.0.0-beta.3",
     "@ton/core": "^0.62.0",
     "@ton/crypto": "^3.3.0",
-    "@ton/ton": "^15.0.0",
+    "@ton/ton": "^15.4.0",
     "bip32": "^5.0.0",
     "bip39": "^3.1.0",
     "bitcoinjs-lib": "^7.0.0",
@@ -48,16 +48,16 @@
     "tronweb": "^6.0.4"
   },
   "devDependencies": {
-    "vite": "^5.4.20",
+    "concurrently": "^8.2.2",
+    "electron": "^30.5.1",
+    "electron-builder": "^24.13.3",
+    "eslint": "^8.57.1",
+    "prettier": "^3.6.2",
+    "rimraf": "^5.0.10",
+    "vite": "^5.4.21",
     "vite-plugin-node-polyfills": "^0.24.0",
     "vite-plugin-wasm": "^3.5.0",
-    "eslint": "^8.57.0",
-    "prettier": "^3.3.0",
-    "electron": "^30.0.0",
-    "electron-builder": "^24.13.3",
-    "concurrently": "^8.2.2",
-    "wait-on": "^7.2.0",
-    "rimraf": "^5.0.5"
+    "wait-on": "^7.2.0"
   },
   "keywords": [
     "wallet",
@@ -89,8 +89,7 @@
   "bugs": {
     "url": "https://github.com/yourusername/wdk-wallet/issues"
   },
-  "homepage": "https://github.com/yourusername/wdk-wallet#readme"
-  ,
+  "homepage": "https://github.com/yourusername/wdk-wallet#readme",
   "build": {
     "appId": "com.axpdev.wdkwallet",
     "productName": "WDK Wallet",
@@ -107,13 +106,22 @@
     },
     "mac": {
       "category": "public.app-category.finance",
-      "target": ["dmg", "zip"]
+      "target": [
+        "dmg",
+        "zip"
+      ]
     },
     "win": {
-      "target": ["nsis", "zip"]
+      "target": [
+        "nsis",
+        "zip"
+      ]
     },
     "linux": {
-      "target": ["AppImage", "deb"],
+      "target": [
+        "AppImage",
+        "deb"
+      ],
       "category": "Finance"
     }
   }
