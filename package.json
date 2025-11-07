@@ -105,12 +105,19 @@
     "extraMetadata": {
       "main": "electron/main.cjs"
     },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
     "mac": {
       "category": "public.app-category.finance",
       "target": ["dmg", "zip"]
     },
     "win": {
-      "target": ["nsis", "zip"]
+      "target": ["portable"],
+      "sign": null,
+      "verifyUpdateCodeSignature": false,
+      "electronUpdaterCompatibility": ">=2.16"
     },
     "linux": {
       "target": ["AppImage", "deb"],
