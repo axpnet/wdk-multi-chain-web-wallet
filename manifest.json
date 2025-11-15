@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "WDK Multi-Chain Wallet",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Multi-chain wallet with EVM, Solana, TON and WalletConnect support",
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;"
