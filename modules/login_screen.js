@@ -1,7 +1,7 @@
 // modules/login_screen.js - Login and wallet selection UI
 
 import { getAllWallets, setActiveWallet, formatLastAccess } from './wallet_manager.js';
-import { decryptData } from './secure_storage.js';
+import { decryptData, hasStoredSeed as hasStoredSeedSecure, loadEncryptedSeed } from './secure_storage.js';
 import { showNotification } from './ui_utils.js';
 
 // === LOGIN SCREEN RENDERING ===
@@ -9,11 +9,21 @@ import { showNotification } from './ui_utils.js';
 /**
  * Show login/wallet selection screen
  */
-export function showLoginScreen() {
+export async function showLoginScreen() {
   const appEl = document.getElementById('app');
   if (!appEl) return;
   
   const wallets = getAllWallets();
+  
+  // Check for extension-stored seed
+  let hasExtensionSeed = false;
+  if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) {
+    try {
+      hasExtensionSeed = await hasStoredSeedSecure();
+    } catch (error) {
+      console.error('Error checking extension storage:', error);
+    }
+  }
   
   appEl.innerHTML = `
     <div class="login-screen" style="max-width:600px;margin:40px auto;padding:24px">
@@ -44,12 +54,36 @@ export function showLoginScreen() {
             </div>
           `).join('')}
         </div>
-      ` : `
+      ` : ''}
+      
+      ${hasExtensionSeed ? `
+        <div class="extension-seed-section mb-4">
+          <div class="wallet-item card" style="cursor:pointer;transition:all 0.2s;border:2px solid #007bff" id="extensionSeedCard">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h5 class="mb-1" style="font-weight:600">
+                    🔗 Wallet Estensione
+                  </h5>
+                  <small class="text-muted">
+                    Seed criptata dall'estensione Chrome
+                  </small>
+                </div>
+                <button class="btn btn-primary btn-open-extension-seed" id="openExtensionSeedBtn">
+                  🔑 Apri
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ` : ''}
+      
+      ${!wallets.length && !hasExtensionSeed ? `
         <div class="alert alert-info text-center mb-4">
           <h5>👋 Benvenuto!</h5>
           <p class="mb-0">Nessun wallet trovato. Crea il tuo primo wallet per iniziare.</p>
         </div>
-      `}
+      ` : ''}
       
       <div class="text-center">
         <button class="btn btn-success btn-lg w-100" id="createNewWalletBtn">
@@ -72,8 +106,18 @@ export function showLoginScreen() {
   document.querySelectorAll('.wallet-item').forEach(card => {
     card.addEventListener('click', () => {
       const walletId = card.dataset.walletId;
-      showPasswordPrompt(walletId);
+      if (walletId) {
+        showPasswordPrompt(walletId);
+      } else if (card.id === 'extensionSeedCard') {
+        showExtensionSeedPasswordPrompt();
+      }
     });
+  });
+  
+  // Extension seed button
+  document.getElementById('openExtensionSeedBtn')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    showExtensionSeedPasswordPrompt();
   });
   
   document.getElementById('createNewWalletBtn')?.addEventListener('click', () => {
@@ -198,6 +242,143 @@ function showPasswordPrompt(walletId) {
   });
   
   document.getElementById('cancelUnlockBtn').addEventListener('click', () => {
+    backdrop.remove();
+  });
+  
+  // Close when clicking outside the modal
+  backdrop.addEventListener('click', () => {
+    backdrop.remove();
+  });
+  // Prevent clicks inside the modal from closing it
+  modal.addEventListener('click', (e) => e.stopPropagation());
+}
+
+/**
+ * Show password prompt to unlock extension-stored seed
+ */
+function showExtensionSeedPasswordPrompt() {
+  const backdrop = document.createElement('div');
+  backdrop.className = 'wdk-modal-backdrop';
+  
+  const modal = document.createElement('div');
+  modal.className = 'wdk-modal';
+  modal.style.maxWidth = '400px';
+  modal.innerHTML = `
+    <h5 style="padding:20px 24px;border-bottom:1px solid var(--border);margin:0">
+      🔐 Sblocca Wallet Estensione
+    </h5>
+    <div class="wdk-modal-body">
+      <div class="mb-3">
+        <h6 style="font-weight:600">Wallet Estensione</h6>
+        <small class="text-muted">Inserisci la password per accedere al seed criptato dell'estensione</small>
+      </div>
+      
+      <div class="mb-3">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-control" id="extensionUnlockPassword" 
+               placeholder="Inserisci password" autocomplete="current-password">
+      </div>
+      
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary flex-grow-1" id="cancelExtensionUnlockBtn">
+          Annulla
+        </button>
+        <button class="btn btn-primary flex-grow-1" id="confirmExtensionUnlockBtn">
+          🔓 Sblocca
+        </button>
+      </div>
+    </div>
+  `;
+  
+  // Center modal inside backdrop and ensure correct stacking
+  backdrop.appendChild(modal);
+  document.body.appendChild(backdrop);
+  
+  const passwordInput = document.getElementById('extensionUnlockPassword');
+  passwordInput.focus();
+  
+  // Handle unlock
+  const attemptUnlock = async () => {
+    const password = passwordInput.value.trim();
+    
+    if (!password) {
+      showNotification('Inserisci una password', 'warning');
+      return;
+    }
+    
+    try {
+      // Try to unlock via extension communication
+      if (window.location.protocol === 'chrome-extension:') {
+        const seed = await new Promise((resolve, reject) => {
+          chrome.runtime.sendMessage({ action: 'unlockWallet', password: password }, (response) => {
+            if (chrome.runtime.lastError) {
+              reject(chrome.runtime.lastError);
+            } else if (response && response.seed) {
+              resolve(response.seed);
+            } else {
+              reject(new Error('Password errata'));
+            }
+          });
+        });
+        
+        // Success! Store decrypted seed in memory for current session
+        window._currentSeed = seed;
+        window._currentWalletId = 'extension-seed';
+        window._currentWalletName = 'Wallet Estensione';
+        
+        backdrop.remove();
+        modal.remove();
+        
+        showNotification('Benvenuto nel Wallet Estensione!', 'success');
+        
+        // Trigger wallet initialization
+        window.dispatchEvent(new CustomEvent('wallet-unlocked', { 
+          detail: { walletId: 'extension-seed', seed: seed, name: 'Wallet Estensione' }
+        }));
+        
+        return;
+      }
+      
+      // Fallback: try local decryption (for when extension context is available)
+      const seed = await loadEncryptedSeed(password);
+      
+      if (!seed) {
+        showNotification('Password errata', 'error');
+        passwordInput.value = '';
+        passwordInput.focus();
+        return;
+      }
+      
+      // Success! Store decrypted seed in memory for current session
+      window._currentSeed = seed;
+      window._currentWalletId = 'extension-seed';
+      window._currentWalletName = 'Wallet Estensione';
+      
+      backdrop.remove();
+      modal.remove();
+      
+      showNotification('Benvenuto nel Wallet Estensione!', 'success');
+      
+      // Trigger wallet initialization
+      window.dispatchEvent(new CustomEvent('wallet-unlocked', { 
+        detail: { walletId: 'extension-seed', seed: seed, name: 'Wallet Estensione' }
+      }));
+      
+    } catch (error) {
+      console.error('❌ Extension unlock error:', error);
+      showNotification('Password errata o errore di caricamento', 'error');
+      passwordInput.value = '';
+      passwordInput.focus();
+    }
+  };
+  
+  document.getElementById('confirmExtensionUnlockBtn').addEventListener('click', attemptUnlock);
+  
+  passwordInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') attemptUnlock();
+  });
+  
+  document.getElementById('cancelExtensionUnlockBtn').addEventListener('click', () => {
     backdrop.remove();
   });
   

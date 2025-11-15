@@ -96,6 +96,50 @@ export async function decryptData(encryptedData, password, saltBase64, ivBase64)
 
 // === STORAGE MANAGER ===
 
+// Detect if we're running in extension context
+function isExtensionContext() {
+  return typeof chrome !== 'undefined' && 
+         chrome.runtime && 
+         chrome.runtime.id && 
+         (typeof window !== 'undefined' ? window.location.protocol === 'chrome-extension:' : self.location.protocol === 'chrome-extension:');
+}
+
+// Storage abstraction layer
+const storage = {
+  async get(key) {
+    if (isExtensionContext()) {
+      const result = await chrome.storage.local.get(key);
+      return result[key];
+    } else {
+      return localStorage.getItem(key);
+    }
+  },
+
+  async set(key, value) {
+    if (isExtensionContext()) {
+      await chrome.storage.local.set({ [key]: value });
+    } else {
+      localStorage.setItem(key, value);
+    }
+  },
+
+  async remove(key) {
+    if (isExtensionContext()) {
+      await chrome.storage.local.remove(key);
+    } else {
+      localStorage.removeItem(key);
+    }
+  },
+
+  async clear() {
+    if (isExtensionContext()) {
+      await chrome.storage.local.clear();
+    } else {
+      localStorage.clear();
+    }
+  }
+};
+
 const STORAGE_KEY = 'wdk_wallet_encrypted_seed';
 const STORAGE_METADATA_KEY = 'wdk_wallet_metadata';
 
@@ -114,8 +158,8 @@ export async function saveEncryptedSeed(seed, password) {
   try {
     const encrypted = await encryptData(seed, password);
     
-    // Salva in localStorage
-    localStorage.setItem(STORAGE_KEY, encrypted);
+    // Salva in storage (chrome.storage o localStorage)
+    await storage.set(STORAGE_KEY, encrypted);
     
     // Salva metadata (NON la password!)
     const metadata = {
@@ -123,7 +167,7 @@ export async function saveEncryptedSeed(seed, password) {
       version: '1.0',
       hasEncryptedSeed: true
     };
-    localStorage.setItem(STORAGE_METADATA_KEY, JSON.stringify(metadata));
+    await storage.set(STORAGE_METADATA_KEY, JSON.stringify(metadata));
     
     console.log('✅ Seed salvata in modo sicuro (encrypted)');
     showNotification('success', 'Seed salvata in modo sicuro');
@@ -144,7 +188,7 @@ export async function loadEncryptedSeed(password) {
   }
   
   try {
-    const encrypted = localStorage.getItem(STORAGE_KEY);
+    const encrypted = await storage.get(STORAGE_KEY);
     if (!encrypted) {
       throw new Error('Nessuna seed salvata trovata');
     }
@@ -158,11 +202,8 @@ export async function loadEncryptedSeed(password) {
   }
 }
 
-/**
- * Verifica se esiste una seed salvata
- */
-export function hasStoredSeed() {
-  const metadata = localStorage.getItem(STORAGE_METADATA_KEY);
+export async function hasStoredSeed() {
+  const metadata = await storage.get(STORAGE_METADATA_KEY);
   if (!metadata) return false;
   
   try {
@@ -173,21 +214,15 @@ export function hasStoredSeed() {
   }
 }
 
-/**
- * Cancella la seed salvata
- */
-export function clearStoredSeed() {
-  localStorage.removeItem(STORAGE_KEY);
-  localStorage.removeItem(STORAGE_METADATA_KEY);
+export async function clearStoredSeed() {
+  await storage.remove(STORAGE_KEY);
+  await storage.remove(STORAGE_METADATA_KEY);
   console.log('✅ Seed cancellata dallo storage');
   showNotification('info', 'Seed rimossa dallo storage locale');
 }
 
-/**
- * Ottieni metadata della seed salvata
- */
-export function getStorageMetadata() {
-  const metadata = localStorage.getItem(STORAGE_METADATA_KEY);
+export async function getStorageMetadata() {
+  const metadata = await storage.get(STORAGE_METADATA_KEY);
   if (!metadata) return null;
   
   try {
@@ -229,17 +264,14 @@ export async function changePassword(oldPassword, newPassword) {
   }
 }
 
-/**
- * Esporta la seed criptata come file .wdk
- */
 export async function exportEncryptedSeed() {
   try {
-    const encrypted = localStorage.getItem(STORAGE_KEY);
+    const encrypted = await storage.get(STORAGE_KEY);
     if (!encrypted) {
       throw new Error('Nessuna seed salvata da esportare');
     }
     
-    const metadata = getStorageMetadata();
+    const metadata = await getStorageMetadata();
     
     // Crea oggetto esportazione con metadata
     const exportData = {
@@ -292,7 +324,7 @@ export async function importEncryptedSeed(file) {
         }
         
         // Salva seed criptata
-        localStorage.setItem(STORAGE_KEY, data.encrypted);
+        await storage.set(STORAGE_KEY, data.encrypted);
         
         // Salva metadata
         const metadata = {
@@ -301,7 +333,7 @@ export async function importEncryptedSeed(file) {
           hasEncryptedSeed: true,
           imported: Date.now()
         };
-        localStorage.setItem(STORAGE_METADATA_KEY, JSON.stringify(metadata));
+        await storage.set(STORAGE_METADATA_KEY, JSON.stringify(metadata));
         
         console.log('✅ Seed criptata importata');
         showNotification('success', 'Backup seed importato con successo');
@@ -404,85 +436,84 @@ export async function showSaveSeedDialog(seed) {
   });
 }
 
-/**
- * Mostra dialog per caricare la seed
- */
 export async function showLoadSeedDialog() {
   return new Promise((resolve) => {
     const backdrop = document.createElement('div');
     backdrop.className = 'wdk-modal-backdrop';
     
-    const metadata = getStorageMetadata();
-    const savedDate = metadata ? new Date(metadata.timestamp).toLocaleString('it-IT') : 'N/A';
-    
-    const modal = document.createElement('div');
-    modal.className = 'wdk-modal';
-    modal.innerHTML = `
-      <h5 style="padding:20px 24px;border-bottom:1px solid var(--border);margin:0">
-        🔓 Carica Seed Salvata
-      </h5>
-      <div class="wdk-modal-body">
-        <div class="alert alert-info">
-          Seed salvata il: <strong>${savedDate}</strong>
-        </div>
-        
-        <div class="mb-3">
-          <label class="form-label">Password</label>
-          <input type="password" id="loadPassword" class="form-control" placeholder="Inserisci la password" autocomplete="current-password">
-          <div class="small text-muted mt-1">La password che hai usato per salvare la seed</div>
-        </div>
-        
-        <div class="alert alert-warning">
-          Se hai dimenticato la password, dovrai usare il backup offline della seed.
-        </div>
-      </div>
-      <div class="wdk-modal-actions">
-        <button class="btn btn-secondary" id="cancelLoad">Annulla</button>
-        <button class="btn btn-primary" id="confirmLoad">🔓 Carica Seed</button>
-      </div>
-    `;
-    
-    backdrop.appendChild(modal);
-    document.body.appendChild(backdrop);
-    
-    const closeModal = () => {
-      backdrop.remove();
-    };
-    
-    document.getElementById('cancelLoad').onclick = () => {
-      closeModal();
-      resolve(null);
-    };
-    
-    document.getElementById('confirmLoad').onclick = async () => {
-      const pwd = document.getElementById('loadPassword').value;
+    // Get metadata asynchronously
+    getStorageMetadata().then(metadata => {
+      const savedDate = metadata ? new Date(metadata.timestamp).toLocaleString('it-IT') : 'N/A';
       
-      if (!pwd) {
-        showNotification('error', 'Inserisci la password');
-        return;
-      }
+      const modal = document.createElement('div');
+      modal.className = 'wdk-modal';
+      modal.innerHTML = `
+        <h5 style="padding:20px 24px;border-bottom:1px solid var(--border);margin:0">
+          🔓 Carica Seed Salvata
+        </h5>
+        <div class="wdk-modal-body">
+          <div class="alert alert-info">
+            Seed salvata il: <strong>${savedDate}</strong>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" id="loadPassword" class="form-control" placeholder="Inserisci la password" autocomplete="current-password">
+            <div class="small text-muted mt-1">La password che hai usato per salvare la seed</div>
+          </div>
+          
+          <div class="alert alert-warning">
+            Se hai dimenticato la password, dovrai usare il backup offline della seed.
+          </div>
+        </div>
+        <div class="wdk-modal-actions">
+          <button class="btn btn-secondary" id="cancelLoad">Annulla</button>
+          <button class="btn btn-primary" id="confirmLoad">🔓 Carica Seed</button>
+        </div>
+      `;
       
-      try {
-        const seed = await loadEncryptedSeed(pwd);
-        showNotification('success', 'Seed caricata con successo');
+      backdrop.appendChild(modal);
+      document.body.appendChild(backdrop);
+      
+      const closeModal = () => {
+        backdrop.remove();
+      };
+      
+      document.getElementById('cancelLoad').onclick = () => {
         closeModal();
-        resolve(seed);
-      } catch (error) {
-        showNotification('error', error.message || 'Errore caricamento seed');
-      }
-    };
-    
-    // Focus sul primo input
-    setTimeout(() => {
-      const input = document.getElementById('loadPassword');
-      if (input) input.focus();
-    }, 100);
-    
-    // Enter per confermare
-    document.getElementById('loadPassword').addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        document.getElementById('confirmLoad').click();
-      }
+        resolve(null);
+      };
+      
+      document.getElementById('confirmLoad').onclick = async () => {
+        const pwd = document.getElementById('loadPassword').value;
+        
+        if (!pwd) {
+          showNotification('error', 'Inserisci la password');
+          return;
+        }
+        
+        try {
+          const seed = await loadEncryptedSeed(pwd);
+          showNotification('success', 'Seed caricata con successo');
+          closeModal();
+          resolve(seed);
+        } catch (error) {
+          showNotification('error', error.message || 'Errore caricamento seed');
+        }
+      };
+      
+      // Focus sul primo input
+      setTimeout(() => {
+        const input = document.getElementById('loadPassword');
+        if (input) input.focus();
+      }, 100);
+      
+      // Enter per confermare
+      document.getElementById('loadPassword').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          document.getElementById('confirmLoad').click();
+        }
+      });
     });
   });
 }
@@ -661,22 +692,126 @@ export async function showBackupDialog() {
   });
 }
 
-// === AUTO-LOCK / TIMEOUT ===
+// === CUSTOM CHAINS & TOKENS MANAGEMENT ===
+
+// Storage keys for custom data
+const CUSTOM_CHAINS_KEY = 'wdk_custom_chains';
+const CUSTOM_TOKENS_KEY = 'wdk_custom_tokens';
+
+/**
+ * Salva una custom chain
+ */
+export async function saveCustomChain(chainConfig) {
+  const customChains = await getCustomChains();
+  const existingIndex = customChains.findIndex(c => c.name === chainConfig.name);
+  
+  if (existingIndex >= 0) {
+    customChains[existingIndex] = chainConfig;
+  } else {
+    customChains.push(chainConfig);
+  }
+  
+  await storage.set(CUSTOM_CHAINS_KEY, JSON.stringify(customChains));
+  console.log('✅ Custom chain salvata:', chainConfig.name);
+  return true;
+}
+
+/**
+ * Rimuovi una custom chain
+ */
+export async function removeCustomChain(chainName) {
+  const customChains = await getCustomChains();
+  const filtered = customChains.filter(c => c.name !== chainName);
+  await storage.set(CUSTOM_CHAINS_KEY, JSON.stringify(filtered));
+  console.log('✅ Custom chain rimossa:', chainName);
+  return true;
+}
+
+/**
+ * Ottieni tutte le custom chains
+ */
+export async function getCustomChains() {
+  const data = await storage.get(CUSTOM_CHAINS_KEY);
+  if (!data) return [];
+  
+  try {
+    return JSON.parse(data);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Salva un custom token
+ */
+export async function saveCustomToken(tokenConfig) {
+  const customTokens = await getCustomTokens();
+  const existingIndex = customTokens.findIndex(t => 
+    t.address.toLowerCase() === tokenConfig.address.toLowerCase() && 
+    t.chain === tokenConfig.chain
+  );
+  
+  if (existingIndex >= 0) {
+    customTokens[existingIndex] = tokenConfig;
+  } else {
+    customTokens.push(tokenConfig);
+  }
+  
+  await storage.set(CUSTOM_TOKENS_KEY, JSON.stringify(customTokens));
+  console.log('✅ Custom token salvato:', tokenConfig.symbol, tokenConfig.chain);
+  return true;
+}
+
+/**
+ * Rimuovi un custom token
+ */
+export async function removeCustomToken(tokenAddress, chain) {
+  const customTokens = await getCustomTokens();
+  const filtered = customTokens.filter(t => 
+    !(t.address.toLowerCase() === tokenAddress.toLowerCase() && t.chain === chain)
+  );
+  await storage.set(CUSTOM_TOKENS_KEY, JSON.stringify(filtered));
+  console.log('✅ Custom token rimosso:', tokenAddress, chain);
+  return true;
+}
+
+/**
+ * Ottieni tutti i custom tokens
+ */
+export async function getCustomTokens() {
+  const data = await storage.get(CUSTOM_TOKENS_KEY);
+  if (!data) return [];
+  
+  try {
+    return JSON.parse(data);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Ottieni custom tokens per una specifica chain
+ */
+export async function getCustomTokensForChain(chain) {
+  const allTokens = await getCustomTokens();
+  return allTokens.filter(t => t.chain === chain);
+}
 
 let autoLockTimer = null;
 let autoLockMinutes = (() => {
-  const stored = localStorage.getItem('wdk_autolock_minutes');
+  // Use storage wrapper for autoLockMinutes
+  const stored = isExtensionContext() ? 
+    chrome.storage.local.get('wdk_autolock_minutes').then(result => result['wdk_autolock_minutes']) :
+    localStorage.getItem('wdk_autolock_minutes');
   const n = stored != null ? parseInt(stored, 10) : 15;
   return Number.isFinite(n) ? n : 15;
 })(); // Default: 15 minuti (overridden by stored value)
 let isWalletLocked = false;
 let cachedSeed = null;
 
-/**
- * Imposta il timeout di auto-lock
- */
-export function setAutoLockTimeout(minutes) {
+export async function setAutoLockTimeout(minutes) {
   autoLockMinutes = minutes;
+  await storage.set('wdk_autolock_minutes', minutes.toString());
   resetAutoLockTimer();
 }
 
@@ -730,29 +865,25 @@ export async function unlockWallet(password) {
     throw new Error('Password richiesta');
   }
   
-  try {
-    const seed = await loadEncryptedSeed(password);
-    cachedSeed = seed;
-    isWalletLocked = false;
-    
-    // Nascondi overlay
-    const overlay = document.getElementById('walletLockOverlay');
-    if (overlay) overlay.remove();
-    
-    // Mostra pannello wallet
-    const walletPanel = document.querySelector('.wallet-panel');
-    if (walletPanel) walletPanel.style.display = 'block';
-    
-    // Reset timer
-    resetAutoLockTimer();
-    
-    console.log('🔓 Wallet sbloccato');
-    showNotification('success', 'Wallet sbloccato');
-    
-    return seed;
-  } catch (error) {
-    throw error;
-  }
+  const seed = await loadEncryptedSeed(password);
+  cachedSeed = seed;
+  isWalletLocked = false;
+  
+  // Nascondi overlay
+  const overlay = document.getElementById('walletLockOverlay');
+  if (overlay) overlay.remove();
+  
+  // Mostra pannello wallet
+  const walletPanel = document.querySelector('.wallet-panel');
+  if (walletPanel) walletPanel.style.display = 'block';
+  
+  // Reset timer
+  resetAutoLockTimer();
+  
+  console.log('🔓 Wallet sbloccato');
+  showNotification('success', 'Wallet sbloccato');
+  
+  return seed;
 }
 
 /**
@@ -851,11 +982,14 @@ function showLockOverlay() {
   };
 }
 
-/**
- * Inizializza il sistema di auto-lock
- */
-export function initAutoLock() {
-  if (!hasStoredSeed()) return;
+export async function initAutoLock() {
+  const hasSeed = await hasStoredSeed();
+  if (!hasSeed) return;
+  
+  // Load autoLockMinutes from storage
+  const stored = await storage.get('wdk_autolock_minutes');
+  autoLockMinutes = stored != null ? parseInt(stored, 10) : 15;
+  if (!Number.isFinite(autoLockMinutes)) autoLockMinutes = 15;
   
   // Eventi per reset timer su attività utente
   const events = ['mousedown', 'keydown', 'scroll', 'touchstart'];

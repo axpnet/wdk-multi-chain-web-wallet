@@ -1,15 +1,23 @@
 import WalletManagerEvm from '@tetherto/wdk-wallet-evm';
-import { getNetworkMode } from '../modules/network.js';
+import { createEvmChainConfig } from '../modules/network.js';
 
-export const bsc = {
+export const bsc = createEvmChainConfig({
   name: 'bsc',
-  manager: WalletManagerEvm,
-  get config() {
-    const mode = getNetworkMode();
-    return { provider: mode === 'testnet' ? 'https://bsc-testnet.publicnode.com' : 'https://bsc-dataseed.binance.org/' };
-  },
-  explorerUrl: (address) => getNetworkMode() === 'testnet'
-    ? `https://testnet.bscscan.com/address/${address}`
-    : `https://bscscan.com/address/${address}`,
-  balanceUnit: 'wei',
-};
+  testnetProviders: [
+    'https://bsc-testnet.publicnode.com',
+    'https://data-seed-prebsc-1-s1.binance.org:8545',
+    'https://data-seed-prebsc-2-s1.binance.org:8545'
+  ],
+  mainnetProviders: [
+    'https://bsc-dataseed.binance.org/',
+    'https://bsc-dataseed1.binance.org/',
+    'https://bsc-dataseed2.binance.org/',
+    'https://bsc-dataseed3.binance.org/'
+  ],
+  testnetExplorer: 'https://testnet.bscscan.com/address/${address}',
+  mainnetExplorer: 'https://bscscan.com/address/${address}',
+  balanceUnit: 'wei'
+});
+
+// Set the manager after creating the config
+bsc.manager = WalletManagerEvm;

@@ -11,7 +11,10 @@ const CHAIN_ICONS = {
   polygon: 'https://assets.coingecko.com/coins/images/4713/small/matic-token-icon.png',
   bsc: 'https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png',
   solana: 'https://assets.coingecko.com/coins/images/4128/small/solana.png',
-  ton: 'https://assets.coingecko.com/coins/images/17980/small/ton_symbol.png'
+  ton: 'https://assets.coingecko.com/coins/images/17980/small/ton_symbol.png',
+  optimism: 'https://assets.coingecko.com/coins/images/25244/small/Optimism.png',
+  base: 'https://assets.coingecko.com/asset_platforms/images/131/standard/base.png',
+  arbitrum: 'https://assets.coingecko.com/asset_platforms/images/33/standard/AO_logomark.png'
 };
 
 // === RENDER WALLET PANEL ===
@@ -102,7 +105,9 @@ export function renderWalletReadyPanel() {
     if (statusCard) statusCard.style.display = 'none';
     const wizControls = document.querySelector('.wizard-controls');
     if (wizControls) wizControls.style.display = 'none';
-  } catch {}
+  } catch {
+    // Ignore DOM manipulation errors
+  }
   
   // Attach event handlers
   setTimeout(() => {
@@ -191,6 +196,26 @@ export function renderWalletReadyPanel() {
     console.warn('⚠️ No wallet results found, panel may not show correct data');
   }
   
+  // Sync with extension if available and seed exists
+  if (window._currentSeed && typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) {
+    try {
+      console.log('🔄 Syncing active wallet with extension...');
+      chrome.runtime.sendMessage({
+        action: 'webWalletActivated',
+        seed: window._currentSeed,
+        timestamp: Date.now()
+      }, (response) => {
+        if (chrome.runtime.lastError) {
+          console.log('Extension sync failed:', chrome.runtime.lastError.message);
+        } else {
+          console.log('✅ Wallet re-synced with extension, response:', response);
+        }
+      });
+    } catch (error) {
+      console.log('Could not re-sync with extension:', error.message);
+    }
+  }
+  
   // PWA Install CTA rendering
   setupInstallCTA();
   
@@ -255,7 +280,9 @@ function setupInstallCTA() {
       btn.onclick = async (e) => {
         e.preventDefault();
         if (window.promptPWAInstall) {
-          try { await window.promptPWAInstall(); } catch {}
+          try { await window.promptPWAInstall(); } catch {
+            // Ignore PWA install errors
+          }
         }
       };
       holder.appendChild(btn);
@@ -312,6 +339,24 @@ function showSecuritySettingsDialog() {
         <button class="btn btn-outline-primary w-100" id="changePasswordBtn" ${!hasSeed ? 'disabled' : ''}>
           🔑 Cambia Password
         </button>
+        <div id="passwordChangeForm" style="display:none;margin-top:15px">
+          <div class="mb-3">
+            <label for="currentPassword" class="form-label">Password attuale</label>
+            <input type="password" class="form-control" id="currentPassword" placeholder="Inserisci password attuale">
+          </div>
+          <div class="mb-3">
+            <label for="newPassword" class="form-label">Nuova password</label>
+            <input type="password" class="form-control" id="newPassword" placeholder="Minimo 8 caratteri">
+          </div>
+          <div class="mb-3">
+            <label for="confirmPassword" class="form-label">Conferma nuova password</label>
+            <input type="password" class="form-control" id="confirmPassword" placeholder="Ripeti nuova password">
+          </div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-primary flex-grow-1" id="savePasswordBtn">💾 Salva Password</button>
+            <button class="btn btn-secondary" id="cancelPasswordBtn">Annulla</button>
+          </div>
+        </div>
       </div>
       <hr>
       <div class="mb-4">
@@ -353,35 +398,64 @@ function showSecuritySettingsDialog() {
   
   document.getElementById('closeSecurityBtn').onclick = closeModal;
 
-  // Cambio password (multi-wallet)
+  // Password change form toggle
   const changePwdBtn = document.getElementById('changePasswordBtn');
-  if (changePwdBtn) {
-    changePwdBtn.onclick = async () => {
+  const passwordForm = document.getElementById('passwordChangeForm');
+  const savePasswordBtn = document.getElementById('savePasswordBtn');
+  const cancelPasswordBtn = document.getElementById('cancelPasswordBtn');
+  
+  if (changePwdBtn && passwordForm) {
+    changePwdBtn.onclick = () => {
+      passwordForm.style.display = 'block';
+      changePwdBtn.style.display = 'none';
+    };
+    
+    cancelPasswordBtn.onclick = () => {
+      passwordForm.style.display = 'none';
+      changePwdBtn.style.display = 'block';
+      // Clear form
+      document.getElementById('currentPassword').value = '';
+      document.getElementById('newPassword').value = '';
+      document.getElementById('confirmPassword').value = '';
+    };
+    
+    savePasswordBtn.onclick = async () => {
       if (!activeWallet) return;
-      const oldPwd = prompt('Password attuale');
-      if (!oldPwd) return;
-      const decrypted = await decryptData(activeWallet.encryptedSeed, oldPwd, activeWallet.salt, activeWallet.iv);
-      if (!decrypted) {
-        showNotification('error', 'Password attuale errata');
+      
+      const currentPwd = document.getElementById('currentPassword').value;
+      const newPwd = document.getElementById('newPassword').value;
+      const confirmPwd = document.getElementById('confirmPassword').value;
+      
+      if (!currentPwd) {
+        showNotification('error', 'Inserisci la password attuale');
         return;
       }
-      const newPwd = prompt('Nuova password (min 8)');
+      
       if (!newPwd || newPwd.length < 8) {
         showNotification('error', 'La nuova password deve essere almeno 8 caratteri');
         return;
       }
-      const confirmPwd = prompt('Conferma nuova password');
+      
       if (newPwd !== confirmPwd) {
         showNotification('error', 'Le password non corrispondono');
         return;
       }
+      
+      const decrypted = await decryptData(activeWallet.encryptedSeed, currentPwd, activeWallet.salt, activeWallet.iv);
+      if (!decrypted) {
+        showNotification('error', 'Password attuale errata');
+        return;
+      }
+      
       const enc = await encryptData(decrypted, newPwd);
       const ok = updateWallet(activeWallet.id, { encryptedSeed: enc.encryptedData, salt: enc.salt, iv: enc.iv });
       if (ok) {
-        showNotification('success', 'Password cambiata con successo');
+        showNotification('success', 'Password del wallet cambiata con successo');
+        // Reset form and hide it
+        cancelPasswordBtn.click();
         closeModal();
       } else {
-        showNotification('error', 'Errore salvataggio nuova password');
+        showNotification('error', 'Errore durante il salvataggio della nuova password');
       }
     };
   }
@@ -411,7 +485,7 @@ function showSecuritySettingsDialog() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      showNotification('success', 'Backup esportato');
+      showNotification('success', `Backup del wallet "${activeWallet.name}" esportato con successo`);
     };
   }
   const importInput = document.getElementById('importBackupInput');
@@ -426,10 +500,10 @@ function showSecuritySettingsDialog() {
         if (!w.encryptedSeed || !w.salt || !w.iv) throw new Error('Backup non valido');
         const ok = updateWallet(activeWallet.id, { encryptedSeed: w.encryptedSeed, salt: w.salt, iv: w.iv });
         if (ok) {
-          showNotification('success', 'Backup importato');
+          showNotification('success', 'Backup del wallet importato con successo');
           closeModal();
         } else {
-          showNotification('error', 'Errore durante l\'import');
+          showNotification('error', 'Errore durante l\'import del backup');
         }
       } catch (e) {
         showNotification('error', e.message || 'File non valido');
@@ -440,14 +514,13 @@ function showSecuritySettingsDialog() {
   // Auto-lock timeout persist
   const autoLockSelect = document.getElementById('autoLockSelect');
   if (autoLockSelect) {
-    autoLockSelect.addEventListener('change', () => {
+    autoLockSelect.addEventListener('change', async () => {
       const minutes = parseInt(autoLockSelect.value, 10);
-      setAutoLockTimeout(minutes);
-      localStorage.setItem('wdk_autolock_minutes', String(minutes));
+      await setAutoLockTimeout(minutes);
       if (minutes > 0) {
-        showNotification('success', `Auto-lock impostato a ${minutes} minuti`);
+        showNotification('success', `Auto-lock del wallet impostato a ${minutes} minuti`);
       } else {
-        showNotification('info', 'Auto-lock disabilitato');
+        showNotification('info', 'Auto-lock del wallet disabilitato');
       }
     });
   }
@@ -463,7 +536,9 @@ function showSecuritySettingsDialog() {
   }
 
   // Ensure modal icons are replaced
-  try { if (window.feather && typeof window.feather.replace === 'function') window.feather.replace(); } catch (e) {}
+  try { if (window.feather && typeof window.feather.replace === 'function') window.feather.replace(); } catch (e) {
+    // Ignore feather icon errors
+  }
 }
 
 // === RENDER CHAIN SELECTOR ===
@@ -524,10 +599,31 @@ export function renderChainSelector(chainsList) {
     if (window._walletResults) {
       const r = window._walletResults.find(x => x.chain === window._activeChain);
       if (r) {
-        const balanceStr = r.balance || '0';
+        const rawBalance = r.balance || '0';
+        const formattedBalance = formatBalance(rawBalance, window._activeChain);
         const ticker = getTickerForChain(window._activeChain);
         
-        if (wb) wb.textContent = `${balanceStr} ${ticker}`;
+        // Calculate full precision for tooltip
+        const decimals = {
+          ethereum: 18,
+          polygon: 18,
+          bsc: 18,
+          optimism: 18,
+          base: 18,
+          arbitrum: 18,
+          solana: 9,
+          ton: 9,
+          litecoin: 8,
+          bitcoin: 8,
+          tron: 6
+        }[window._activeChain] || 18;
+        const fullNum = parseFloat(rawBalance) / Math.pow(10, decimals);
+        const fullFormatted = fullNum.toFixed(6);
+        
+        if (wb) {
+          wb.textContent = `${formattedBalance} ${ticker}`;
+          wb.title = `${fullFormatted} ${ticker}`; // Tooltip with full precision
+        }
         if (tickerEl) tickerEl.textContent = `${ticker} Saldo`;
         
         // Update chain icon
@@ -579,8 +675,26 @@ export function updateWalletPanelBalances(results) {
   // Show first chain balance as primary (or active chain if set)
   const activeChain = window._activeChain || results[0].chain;
   const primary = results.find(r => r.chain === activeChain) || results[0];
-  const balanceStr = primary.balance || '0';
+  const rawBalance = primary.balance || '0';
+  const formattedBalance = formatBalance(rawBalance, primary.chain);
   const ticker = getTickerForChain(primary.chain);
+  
+  // Calculate full precision for tooltip
+  const decimals = {
+    ethereum: 18,
+    polygon: 18,
+    bsc: 18,
+    optimism: 18,
+    base: 18,
+    arbitrum: 18,
+    solana: 9,
+    ton: 9,
+    litecoin: 8,
+    bitcoin: 8,
+    tron: 6
+  }[primary.chain] || 18;
+  const fullNum = parseFloat(rawBalance) / Math.pow(10, decimals);
+  const fullFormatted = fullNum.toFixed(6);
   
   // Update chain icon
   if (chainIcon && CHAIN_ICONS[activeChain]) {
@@ -591,7 +705,8 @@ export function updateWalletPanelBalances(results) {
     chainIcon.style.display = 'none';
   }
   
-  wb.textContent = `${balanceStr} ${ticker}`;
+  wb.textContent = `${formattedBalance} ${ticker}`;
+  wb.title = `${fullFormatted} ${ticker}`; // Tooltip with full precision
   // Update fiat display after setting balance
   updateFiatDisplay();
   
@@ -603,7 +718,7 @@ export function updateWalletPanelBalances(results) {
     addrHolder.textContent = 'Indirizzo non disponibile';
   }
   
-  console.log(`✅ Balance aggiornato: ${balanceStr} ${ticker}`);
+  console.log(`✅ Balance aggiornato: ${formattedBalance} ${ticker}`);
 }
 
 // === CURRENCY SELECTOR ===
@@ -647,8 +762,9 @@ async function updateFiatDisplay(force = false) {
     }
     const r = window._walletResults.find(x => x.chain === active);
     if (!r) return;
-    const num = parseFloat((r.balance || '0').toString().replace(/[^0-9.]/g, ''));
-    if (!isFinite(num)) {
+    const rawBalance = r.balance || '0';
+    const formattedNum = parseFloat(formatBalance(rawBalance, active));
+    if (!isFinite(formattedNum)) {
       fiatEl.textContent = '';
       return;
     }
@@ -659,7 +775,7 @@ async function updateFiatDisplay(force = false) {
       fiatEl.textContent = '';
       return;
     }
-    const val = num * price;
+    const val = formattedNum * price;
     const formatted = new Intl.NumberFormat('it-IT', { style: 'currency', currency: cur }).format(val);
     fiatEl.textContent = `≈ ${formatted}`;
   } catch (e) {
@@ -737,6 +853,28 @@ function showWalletSwitcher() {
 }
 
 // === UTILITY FUNCTIONS ===
+
+function formatBalance(rawBalance, chain) {
+  const num = parseFloat(rawBalance);
+  if (!isFinite(num)) return '0';
+  
+  const decimals = {
+    ethereum: 18,
+    polygon: 18,
+    bsc: 18,
+    optimism: 18,
+    base: 18,
+    arbitrum: 18,
+    solana: 9,
+    ton: 9,
+    litecoin: 8,
+    bitcoin: 8,
+    tron: 6
+  }[chain] || 18;
+  
+  const formatted = num / Math.pow(10, decimals);
+  return formatted.toFixed(3);
+}
 
 function escapeHtml(text) {
   const div = document.createElement('div');

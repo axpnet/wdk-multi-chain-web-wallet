@@ -32,7 +32,10 @@ export function showInitializationPanel(statusEl, seedPhrase, onSuccess) {
     polygon: 'https://assets.coingecko.com/coins/images/4713/small/matic-token-icon.png',
     bsc: 'https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png',
     solana: 'https://assets.coingecko.com/coins/images/4128/small/solana.png',
-    ton: 'https://assets.coingecko.com/coins/images/17980/small/ton_symbol.png'
+    ton: 'https://assets.coingecko.com/coins/images/17980/small/ton_symbol.png',
+    optimism: 'https://assets.coingecko.com/coins/images/25244/small/Optimism.png',
+    base: 'https://assets.coingecko.com/asset_platforms/images/131/standard/base.png',
+    arbitrum: 'https://assets.coingecko.com/asset_platforms/images/33/standard/AO_logomark.png'
   };
   
   const localChecks = {};
@@ -146,12 +149,19 @@ export async function initWithSeed(seed, selectedChainNames, statusEl, onSuccess
         
         const wdk = new WDK(seed);
         
-        // Register wallets
-        selectedChains.forEach(chain => {
+        // Register wallets (now async due to RPC provider selection)
+        for (const chain of selectedChains) {
           if (chain.manager) {
-            wdk.registerWallet(chain.name, chain.manager, chain.config);
+            try {
+              const config = await chain.config;
+              wdk.registerWallet(chain.name, chain.manager, config);
+              console.log(`✅ Registered ${chain.name} with provider: ${config.provider}`);
+            } catch (error) {
+              console.error(`❌ Failed to register ${chain.name}:`, error);
+              // Continue with other chains even if one fails
+            }
           }
-        });
+        }
         
         const results = [];
         for (const chainObj of selectedChains) {
@@ -224,7 +234,7 @@ export async function initWithSeed(seed, selectedChainNames, statusEl, onSuccess
                     <tr>
                       <td>${r.chain.toUpperCase()}</td>
                       <td><code>${r.address}</code></td>
-                      <td>${r.balance}</td>
+                      <td>${formatBalanceForTable(r.balance, r.chain)}</td>
                       <td><a href="${r.explorer}" target="_blank" class="btn btn-sm btn-outline-info">Apri</a></td>
                     </tr>
                   `).join('')}
@@ -264,9 +274,42 @@ export async function initWithSeed(seed, selectedChainNames, statusEl, onSuccess
   }
 }
 
-// === HELPER: Initialize wallet from unlocked seed ===
+// === HELPER FUNCTIONS ===
+
+function formatBalanceForTable(rawBalance, chain) {
+  const num = parseFloat(rawBalance);
+  if (!isFinite(num) || num === 0) return '0';
+  
+  const decimals = {
+    ethereum: 18,
+    polygon: 18,
+    bsc: 18,
+    optimism: 18,
+    base: 18,
+    arbitrum: 18,
+    solana: 9,
+    ton: 9,
+    litecoin: 8,
+    bitcoin: 8,
+    tron: 6
+  }[chain] || 18;
+  
+  const formatted = num / Math.pow(10, decimals);
+  
+  // Format with appropriate precision
+  if (formatted >= 1) {
+    return formatted.toFixed(4);
+  } else if (formatted >= 0.01) {
+    return formatted.toFixed(6);
+  } else {
+    return formatted.toFixed(8);
+  }
+}
 
 export async function initializeWalletFromSeed(seed) {
+  // Store seed globally for re-sync purposes
+  window._currentSeed = seed;
+  
   // Get all available chains
   const allChains = CHAINS.filter(c => !c.disabled).map(c => c.name);
   
@@ -276,5 +319,32 @@ export async function initializeWalletFromSeed(seed) {
     import('./wallet_ui.js').then(({ renderWalletReadyPanel }) => {
       renderWalletReadyPanel();
     });
+    
+    // Notify extension that wallet is active (if extension is available)
+    if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) {
+      try {
+        // Validate seed before sending
+        if (typeof seed === 'string' && seed.length > 10) {
+          console.log('🔗 Sending webWalletActivated to extension with seed length:', seed.length);
+          chrome.runtime.sendMessage({
+            action: 'webWalletActivated',
+            seed: seed,
+            timestamp: Date.now()
+          }, (response) => {
+            if (chrome.runtime.lastError) {
+              console.log('Extension sync failed:', chrome.runtime.lastError.message);
+            } else {
+              console.log('✅ Wallet synced with extension, response:', response);
+            }
+          });
+        } else {
+          console.log('🔗 Invalid seed format, skipping extension sync');
+        }
+      } catch (error) {
+        console.log('Could not sync with extension:', error.message);
+      }
+    } else {
+      console.log('🔗 Chrome extension not available for sync');
+    }
   });
 }

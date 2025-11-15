@@ -258,12 +258,17 @@ export async function showSendForm(chain) {
           
           const wdk = new WDK(seedPhrase);
           
-          // Register managers for available chains
-          CHAINS.forEach(ch => {
+          // Register managers for available chains (now async)
+          for (const ch of CHAINS) {
             if (ch.manager) {
-              wdk.registerWallet(ch.name, ch.manager, ch.config);
+              try {
+                const config = await ch.config;
+                wdk.registerWallet(ch.name, ch.manager, config);
+              } catch (error) {
+                console.error(`Failed to register ${ch.name}:`, error);
+              }
             }
-          });
+          }
           
           const account = await wdk.getAccount(chain, 0);
           

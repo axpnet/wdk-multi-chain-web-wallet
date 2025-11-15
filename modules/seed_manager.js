@@ -172,7 +172,9 @@ export function showSeedVerificationUI(expectedMnemonic, statusEl, onVerified, o
       document.dispatchEvent(new CustomEvent('seed-validation-status', {
         detail: { valid, matchesExpected: matches, wordCount }
       }));
-    } catch {}
+    } catch {
+      // Ignore dispatch errors
+    }
   }
   
   // Prime update

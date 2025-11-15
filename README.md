@@ -37,6 +37,7 @@ A lightweight, multi‑chain crypto wallet built with Vite + Vanilla JS. It runs
 - Wizard onboarding (4 steps): Setup → Seed → Verify → Initialize
 - Send/Receive modals with QR, dynamic gas denomination per chain
 - Fiat countervalue (EUR/USD) with short cache (CoinGecko)
+- **WalletConnect**: Connect to dApps and sign transactions securely
 
 ## � Supported Platforms & Devices
 
@@ -341,10 +342,15 @@ npx cap open android  # or ios
 - UX
   - Centered, sharp modals; backdrop click-to-close; inner clicks safe
   - Topbar theme switching (Auto/Light/Dark)
-  - “New Wallet” button to re‑enter the wizard
+  - "New Wallet" button to re‑enter the wizard
 - Fiat
   - Currency selector EUR/USD
   - Price cache 60s via CoinGecko Simple API
+- WalletConnect Integration
+  - Connect to decentralized applications (dApps)
+  - Secure transaction signing and approval
+  - Support for Ethereum, Polygon, BSC, Optimism, Arbitrum, Base
+  - Session management with connection status indicator
 - Chains & tickers
   - Ethereum (ETH), Polygon (POL), BSC (BNB), Solana (SOL), TON (TON), Litecoin (LTC), Tron (TRX)
   - Bitcoin is present with browser limitations
@@ -359,11 +365,61 @@ npx cap open android  # or ios
 
 See SECURITY_GUIDE.md for detailed guidelines and best practices.
 
+## 🧪 Testing
+
+The project includes comprehensive testing setup:
+
+```bash
+# Unit tests
+npm run test:run
+
+# Test with coverage
+npm run test:coverage
+
+# E2E tests
+npm run test:e2e
+```
+
+See [Testing Guide](docs/testing.md) for detailed instructions.
+
 ## ⚙️ Configuration
 
 - Chains and RPC options live in `config.js` and `chains/*.js`
 - UI/theme tokens are in `style.css`
 - Vite config in `vite.config.js`
+
+### 🔗 WalletConnect Setup
+
+To enable WalletConnect functionality:
+
+1. **Create a WalletConnect Project:**
+   - Go to [WalletConnect Cloud](https://cloud.walletconnect.com/)
+   - Sign up/Sign in to your account
+   - Create a new project
+   - Copy your Project ID
+
+2. **Configure the Project ID:**
+   - Open `modules/walletconnect.js`
+   - Replace `'your-project-id-here'` with your actual Project ID:
+   ```javascript
+   const WALLET_CONNECT_PROJECT_ID = 'your-actual-project-id';
+   ```
+
+3. **Supported Chains:**
+   - Ethereum (Mainnet & Sepolia)
+   - Polygon (Mainnet & Mumbai)
+   - BSC (Mainnet & Testnet)
+   - Optimism (Mainnet & Sepolia)
+   - Arbitrum (Mainnet & Sepolia)
+   - Base (Mainnet & Sepolia)
+
+4. **How to Use:**
+   - Click the WalletConnect button (🔗) in the topbar
+   - The wallet will listen for connection requests from dApps
+   - When a dApp requests connection, you'll see an approval modal
+   - Approve transactions securely through the wallet interface
+
+**Note:** WalletConnect requires the Project ID to be configured for production use. Without it, the feature will show initialization errors.
 
 ## 📦 PWA
 

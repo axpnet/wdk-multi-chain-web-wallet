@@ -1,6 +1,7 @@
 // modules/ui-utils.js - UI utilities (toast, modal, theme)
+import { marked } from 'marked';
 
-// === TOAST SYSTEM ===
+ // === TOAST SYSTEM ===
 
 let toastWrap = null;
 
@@ -13,13 +14,19 @@ export function initToastSystem() {
 }
 
 export function showNotification(message, type = 'info', timeout = 4000) {
+  // Skip notifications in test environment
+  if (typeof window !== 'undefined' && window.location && window.location.href.includes('vitest')) {
+    console.log(`[NOTIFICATION] ${type}: ${message}`);
+    return null;
+  }
+
   if (!toastWrap) initToastSystem();
-  
+
   const el = document.createElement('div');
   el.className = `toast ${type}`;
   el.innerHTML = `<div class="toast-body">${message}</div>`;
   toastWrap.appendChild(el);
-  
+
   requestAnimationFrame(() => el.classList.add('show'));
   if (timeout > 0) setTimeout(() => hideToast(el), timeout);
   return el;
@@ -70,6 +77,12 @@ export function showModal(contentEl) {
 // === MARKDOWN DOCUMENTATION MODAL ===
 
 export async function showMarkdownModal(title, mdPath) {
+  // Check if a modal is already open and close it
+  const existingModal = document.querySelector('.wdk-modal-backdrop');
+  if (existingModal) {
+    existingModal.remove();
+  }
+  
   // Determine base path and language from mdPath
   const basePath = mdPath.replace(/\.(it\.)?md$/, '');
   const currentLang = mdPath.endsWith('.it.md') ? 'it' : 'en';
@@ -93,6 +106,19 @@ export async function showMarkdownModal(title, mdPath) {
   try {
     // Load initial content
     const htmlContent = await loadContent(currentLang);
+    
+    // Remove duplicate H1 titles from content (keep only the first one)
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlContent;
+    const h1Elements = tempDiv.querySelectorAll('h1');
+    if (h1Elements.length > 1) {
+      // Keep only the first H1, remove others
+      for (let i = 1; i < h1Elements.length; i++) {
+        h1Elements[i].remove();
+      }
+    }
+    const cleanedHtmlContent = tempDiv.innerHTML;
+    
     let activeLang = currentLang;
     
     // Create modal structure
@@ -110,7 +136,7 @@ export async function showMarkdownModal(title, mdPath) {
         </div>
       </div>
       <div class="markdown-modal-body markdown-content">
-        ${htmlContent}
+        ${cleanedHtmlContent}
       </div>
     `;
     
@@ -133,7 +159,19 @@ export async function showMarkdownModal(title, mdPath) {
         // Load new content
         try {
           const newContent = await loadContent(newLang);
-          bodyEl.innerHTML = newContent;
+          
+          // Clean duplicate H1 titles from new content too
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = newContent;
+          const h1Elements = tempDiv.querySelectorAll('h1');
+          if (h1Elements.length > 1) {
+            for (let i = 1; i < h1Elements.length; i++) {
+              h1Elements[i].remove();
+            }
+          }
+          const cleanedNewContent = tempDiv.innerHTML;
+          
+          bodyEl.innerHTML = cleanedNewContent;
           activeLang = newLang;
           // Scroll to top
           bodyEl.scrollTop = 0;

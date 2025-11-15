@@ -13,6 +13,9 @@ const COINGECKO_IDS = {
   ton: 'the-open-network', // TON Coin
   litecoin: 'litecoin',
   bitcoin: 'bitcoin',
+  optimism: 'optimism',
+  base: 'ethereum', // Base uses ETH
+  arbitrum: 'arbitrum',
 };
 
 export function getPreferredCurrency() {
@@ -38,7 +41,9 @@ function readCache() {
 function writeCache(data) {
   try {
     localStorage.setItem(STORAGE_KEY_CACHE, JSON.stringify({ timestamp: Date.now(), data }));
-  } catch {}
+  } catch {
+    // Ignore localStorage errors
+  }
 }
 
 export async function getPrices(currency = 'EUR', force = false) {

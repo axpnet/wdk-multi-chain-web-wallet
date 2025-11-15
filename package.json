@@ -11,11 +11,19 @@
     "build:github": "BASE_PATH=/wdk-multi-chain-web-wallet/ vite build",
     "build:portable": "vite build",
     "build:electron": "vite build --base=./",
+    "build:extension": "vite build --mode extension --outDir dist/extension && npx esbuild background-main.js --bundle --outfile=dist/extension/background.js --format=esm --target=esnext && cp content.js popup.html popup.js injected.js manifest.json dist/extension/ && mkdir -p dist/extension/icons && cp icon*.png dist/extension/icons/ 2>/dev/null || true",
     "preview": "vite preview",
     "lint": "eslint . --ext .js --max-warnings=0 || echo 'Lint warnings found but continuing...'",
     "lint:fix": "eslint . --ext .js --fix",
     "format": "prettier --write \"**/*.{js,json,css,md}\"",
-  "clean": "rimraf dist node_modules/.vite",
+    "clean": "rimraf dist node_modules/.vite",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui",
+    "test:e2e": "playwright test",
+    "test:e2e:install": "playwright install",
+    "test:e2e:headed": "playwright test --headed",
     "electron": "electron .",
     "electron:dev": "concurrently -k \"npm:dev\" \"wait-on http://localhost:3000 && electron .\"",
     "electron:pack": "npm run build:electron && electron-builder --dir",
@@ -33,6 +41,10 @@
     "@ton/core": "^0.62.0",
     "@ton/crypto": "^3.3.0",
     "@ton/ton": "^15.0.0",
+    "@walletconnect/core": "^2.23.0",
+    "@walletconnect/types": "^2.23.0",
+    "@walletconnect/utils": "^2.23.0",
+    "@walletconnect/web3wallet": "^1.16.1",
     "bip32": "^5.0.0",
     "bip39": "^3.1.0",
     "bitcoinjs-lib": "^7.0.0",
@@ -42,22 +54,31 @@
     "ecpair": "^3.0.0",
     "elliptic": "^6.6.1",
     "ethers": "^6.15.0",
+    "feather-icons": "^4.29.2",
+    "marked": "^17.0.0",
     "qrcode": "^1.5.4",
     "sodium-javascript": "^0.8.0",
     "tiny-secp256k1": "^2.2.4",
     "tronweb": "^6.0.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "@vitest/ui": "^1.6.0",
+    "concurrently": "^8.2.2",
+    "electron": "^30.0.0",
+    "electron-builder": "^24.13.3",
+    "esbuild": "^0.27.0",
+    "eslint": "^8.57.0",
+    "happy-dom": "^20.0.10",
+    "jsdom": "^19.0.0",
+    "playwright": "^1.56.1",
+    "prettier": "^3.3.0",
+    "rimraf": "^5.0.5",
     "vite": "^5.4.20",
     "vite-plugin-node-polyfills": "^0.24.0",
     "vite-plugin-wasm": "^3.5.0",
-    "eslint": "^8.57.0",
-    "prettier": "^3.3.0",
-    "electron": "^30.0.0",
-    "electron-builder": "^24.13.3",
-    "concurrently": "^8.2.2",
-    "wait-on": "^7.2.0",
-    "rimraf": "^5.0.5"
+    "vitest": "^1.6.0",
+    "wait-on": "^7.2.0"
   },
   "keywords": [
     "wallet",
@@ -89,8 +110,7 @@
   "bugs": {
     "url": "https://github.com/yourusername/wdk-wallet/issues"
   },
-  "homepage": "https://github.com/yourusername/wdk-wallet#readme"
-  ,
+  "homepage": "https://github.com/yourusername/wdk-wallet#readme",
   "build": {
     "appId": "com.axpdev.wdkwallet",
     "productName": "WDK Wallet",
@@ -111,16 +131,24 @@
     },
     "mac": {
       "category": "public.app-category.finance",
-      "target": ["dmg", "zip"]
+      "target": [
+        "dmg",
+        "zip"
+      ]
     },
     "win": {
-      "target": ["portable"],
+      "target": [
+        "portable"
+      ],
       "sign": null,
       "verifyUpdateCodeSignature": false,
       "electronUpdaterCompatibility": ">=2.16"
     },
     "linux": {
-      "target": ["AppImage", "deb"],
+      "target": [
+        "AppImage",
+        "deb"
+      ],
       "category": "Finance"
     }
   }

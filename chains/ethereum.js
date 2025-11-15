@@ -1,16 +1,24 @@
 import WalletManagerEvm from '@tetherto/wdk-wallet-evm';
-import { getNetworkMode } from '../modules/network.js';
+import { createEvmChainConfig } from '../modules/network.js';
 
-export const ethereum = {
+export const ethereum = createEvmChainConfig({
   name: 'ethereum',
-  manager: WalletManagerEvm,
-  get config() {
-    const mode = getNetworkMode();
-    // Holesky is more reliable than Sepolia for testing
-    return { provider: mode === 'testnet' ? 'https://ethereum-holesky-rpc.publicnode.com' : 'https://public-eth.nownodes.io' };
-  },
-  explorerUrl: (address) => getNetworkMode() === 'testnet'
-    ? `https://holesky.etherscan.io/address/${address}`
-    : `https://etherscan.io/address/${address}`,
-  balanceUnit: 'wei',
-};
+  testnetProviders: [
+    'https://rpc.ankr.com/eth_holesky',
+    'https://holesky.drpc.org',
+    'https://ethereum-holesky.public.blastapi.io',
+    'https://ethereum-holesky-rpc.publicnode.com'
+  ],
+  mainnetProviders: [
+    'https://public-eth.nownodes.io',
+    'https://rpc.ankr.com/eth',
+    'https://eth.drpc.org',
+    'https://cloudflare-eth.com'
+  ],
+  testnetExplorer: 'https://holesky.etherscan.io/address/${address}',
+  mainnetExplorer: 'https://etherscan.io/address/${address}',
+  balanceUnit: 'wei'
+});
+
+// Set the manager after creating the config
+ethereum.manager = WalletManagerEvm;

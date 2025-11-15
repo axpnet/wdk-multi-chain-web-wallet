@@ -88,11 +88,15 @@ export default defineConfig({
   // Build configuration
   build: {
     target: 'esnext',
-    outDir: 'dist',
+    outDir: process.env.NODE_ENV === 'extension' ? 'dist/extension' : 'dist',
     sourcemap: true,
     
     // Rollup options per code splitting
     rollupOptions: {
+      input: process.env.NODE_ENV === 'extension' ? {
+        index: resolve(__dirname, 'index.html'),
+        background: resolve(__dirname, 'background-main.js'),
+      } : undefined,
       output: {
         manualChunks: {
           // Vendor chunks per migliore caching
