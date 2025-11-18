@@ -12,7 +12,14 @@ export const ton = {
     const apiKey = mode === 'testnet'
       ? (import.meta.env.VITE_TON_API_KEY_TESTNET || '')
       : (import.meta.env.VITE_TON_API_KEY || '');
-    return { tonClient: { url, apiKey } };
+    return { provider: url, apiKey };
+  },
+  getAccount: async (seed) => {
+    const address = window.cryptoSecure.deriveTonAddress(seed);
+    return {
+      address,
+      getBalance: async () => '0'
+    };
   },
   explorerUrl: (address) => getNetworkMode() === 'testnet'
     ? `https://testnet.tonscan.org/address/${address}`

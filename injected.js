@@ -9,23 +9,25 @@ class WDKProvider {
     this._accounts = [];
     this._listeners = {};
 
-    // Connect to background script
-    this._port = chrome.runtime.connect({ name: 'wdk-provider' });
+    // Only connect to background script if in extension environment
+    if (typeof chrome !== 'undefined' && chrome.runtime) {
+      this._port = chrome.runtime.connect({ name: 'wdk-provider' });
 
-    this._port.onMessage.addListener((msg) => {
-      if (msg.type === 'accountsChanged') {
-        this._accounts = msg.accounts;
-        this.selectedAddress = msg.accounts[0] || null;
-        this._emit('accountsChanged', msg.accounts);
-      } else if (msg.type === 'chainChanged') {
-        this.chainId = msg.chainId;
-        this.networkVersion = parseInt(msg.chainId, 16).toString();
-        this._emit('chainChanged', msg.chainId);
-      }
-    });
+      this._port.onMessage.addListener((msg) => {
+        if (msg.type === 'accountsChanged') {
+          this._accounts = msg.accounts;
+          this.selectedAddress = msg.accounts[0] || null;
+          this._emit('accountsChanged', msg.accounts);
+        } else if (msg.type === 'chainChanged') {
+          this.chainId = msg.chainId;
+          this.networkVersion = parseInt(msg.chainId, 16).toString();
+          this._emit('chainChanged', msg.chainId);
+        }
+      });
 
-    // Request initial state
-    this._port.postMessage({ type: 'getState' });
+      // Request initial state
+      this._port.postMessage({ type: 'getState' });
+    }
   }
 
   // Event handling
@@ -48,6 +50,9 @@ class WDKProvider {
 
   // Provider methods
   async request({ method, params = [] }) {
+    if (!this._port) {
+      throw new Error('WDKProvider not available in this environment');
+    }
     return new Promise((resolve, reject) => {
       const id = Date.now() + Math.random();
       const handler = (response) => {

@@ -6,7 +6,14 @@ export const solana = {
   manager: WalletManagerSol,
   get config() {
     const mode = getNetworkMode();
-    return { rpcUrl: mode === 'testnet' ? 'https://api.testnet.solana.com' : 'https://solana.publicnode.com' };
+    return { provider: mode === 'testnet' ? 'https://api.testnet.solana.com' : 'https://solana.publicnode.com' };
+  },
+  getAccount: async (seed) => {
+    const address = window.cryptoSecure.deriveSolanaAddress(seed);
+    return {
+      address,
+      getBalance: async () => '0'
+    };
   },
   explorerUrl: (address) => getNetworkMode() === 'testnet'
     ? `https://solscan.io/account/${address}?cluster=testnet`
