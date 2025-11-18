@@ -1,6 +1,6 @@
 # 💼 WDK Multi‑Wallet (PWA)
 
-[![Version](https://img.shields.io/badge/version-1.01-blue.svg)](#) 
+[![Version](https://img.shields.io/badge/version-1.02-blue.svg)](#)
 [![PWA](https://img.shields.io/badge/PWA-ready-brightgreen.svg)](#)
 [![CI/CD](https://github.com/axpnet/wdk-multi-chain-web-wallet/actions/workflows/ci.yml/badge.svg)](https://github.com/axpnet/wdk-multi-chain-web-wallet/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -16,12 +16,15 @@
 
 <div align="center">
   <p>
-    <strong>Supported Blockchains</strong>
+    <strong>Supported Blockchains (8 Chains)</strong>
   </p>
   <p>
     <img src="https://assets.coingecko.com/coins/images/279/small/ethereum.png" alt="Ethereum" width="40" height="40" title="Ethereum"/>
     <img src="https://assets.coingecko.com/coins/images/4713/small/matic-token-icon.png" alt="Polygon" width="40" height="40" title="Polygon"/>
     <img src="https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png" alt="BSC" width="40" height="40" title="BNB Smart Chain"/>
+    <img src="https://assets.coingecko.com/coins/images/25244/small/Optimism.png" alt="Optimism" width="40" height="40" title="Optimism"/>
+    <img src="https://assets.coingecko.com/asset_platforms/images/131/standard/base.png" alt="Base" width="40" height="40" title="Base"/>
+    <img src="https://assets.coingecko.com/asset_platforms/images/33/standard/AO_logomark.png" alt="Arbitrum" width="40" height="40" title="Arbitrum"/>
     <img src="https://assets.coingecko.com/coins/images/4128/small/solana.png" alt="Solana" width="40" height="40" title="Solana"/>
     <img src="https://assets.coingecko.com/coins/images/17980/small/ton_symbol.png" alt="TON" width="40" height="40" title="TON"/>
   </p>
@@ -35,9 +38,21 @@ A lightweight, multi‑chain crypto wallet built with Vite + Vanilla JS. It runs
 - Secure storage: AES‑256‑GCM + PBKDF2 (100k) encryption in the browser
 - Login screen: select a saved wallet and unlock with password
 - Wizard onboarding (4 steps): Setup → Seed → Verify → Initialize
+- **Advanced Seed Security**: Choose from 12, 15, 18, 21, or 24-word seed phrases with real-time security guidance
 - Send/Receive modals with QR, dynamic gas denomination per chain
 - Fiat countervalue (EUR/USD) with short cache (CoinGecko)
 - **WalletConnect**: Connect to dApps and sign transactions securely
+
+## 🔄 Recent Updates
+
+### v1.02 - Multi-Chain Address Derivation Fix
+- ✅ **Fixed web wallet address derivation** for all 8 supported chains
+- ✅ **Added custom derivation functions** for Solana and TON chains in web environment
+- ✅ **Enhanced crypto bundle** with `deriveSolanaAddress` and `deriveTonAddress` functions
+- ✅ **Improved CORS handling** for RPC endpoints in development
+- ✅ **Consistent address generation** between extension and web versions
+
+**Supported Chains**: Ethereum, Polygon, BSC, Optimism, Base, Arbitrum, Solana, TON
 
 ## � Supported Platforms & Devices
 
@@ -116,7 +131,97 @@ npm run build:github
 npm run preview
 ```
 
-## 🌐 Deployment & Installation
+## 🏗️ Chrome Extension Build Process
+
+The WDK Wallet can be built as a Chrome extension for enhanced security and native browser integration. The extension build process creates a Manifest V3 compliant extension with strict CSP policies.
+
+### Extension Build Steps
+
+```bash
+# Build the extension for production
+npm run build:extension
+
+# This command performs the following operations:
+# 1. Builds the main application with Vite in extension mode
+# 2. Bundles the background script with esbuild
+# 3. Creates crypto-secure.min.js with IIFE format for browser compatibility
+# 4. Copies popup files (HTML, JS, CSS) to extension-light/
+# 5. Downloads FontAwesome CSS and processes it for local use
+# 6. Copies manifest.json and icon files
+# 7. Includes local QRCode.js library for CSP compliance
+```
+
+### Extension Architecture
+
+**Key Files:**
+- `manifest.json`: Extension configuration with strict CSP policies
+- `popup.html`: Main popup interface (350px width, responsive)
+- `popup.js`: Core wallet logic with theme support and storage management
+- `popup.css`: Styling with CSS custom properties for theming
+- `background.js`: Service worker for persistent background tasks
+- `content.js`: Content script for dApp interaction
+- `injected.js`: Web-accessible script for WalletConnect bridge
+
+**Real Cryptocurrency Icons:**
+- Uses authentic CoinGecko icons for all supported blockchains (Ethereum, Polygon, BSC, Solana, TON, etc.)
+- Optimized sizing for popup constraints (20x20px in chain selection, 24x24px in balance view)
+- Graceful fallback handling if images fail to load
+- CSP-compliant external image loading from trusted HTTPS CDN
+
+**Security Features:**
+- **Content Security Policy**: `script-src 'self' 'wasm-unsafe-eval'` prevents external script loading
+- **Local Libraries**: All dependencies (QRCode, crypto functions) are bundled locally
+- **Isolated Contexts**: Background script and content scripts run in separate contexts
+- **Storage Encryption**: Wallet data encrypted with AES-256-GCM in chrome.storage.local
+
+**Theme System:**
+- CSS custom properties for light/dark mode switching
+- `data-theme` attribute on document root controls theme application
+- Auto-detection of system preference (prefers-color-scheme)
+- User preference persistence in chrome.storage.local
+
+### Extension Installation
+
+1. **Build the extension:**
+   ```bash
+   npm run build:extension
+   ```
+
+2. **Load in Chrome:**
+   - Open `chrome://extensions/`
+   - Enable "Developer mode" (top right)
+   - Click "Load unpacked"
+   - Select the `extension-light/` folder
+
+3. **Verify installation:**
+   - Extension icon should appear in toolbar
+   - Click to open popup and test wallet functionality
+   - Check console for any CSP violations or errors
+
+### Extension Limitations
+
+- **CSP Restrictions**: No external CDN scripts (all libraries must be local)
+- **Browser Compatibility**: Chrome/Edge only (Manifest V3 requirement)
+- **Popup Size**: Fixed 350px width, responsive height
+- **Storage**: chrome.storage.local (5MB limit per extension)
+- **Network**: Host permissions required for blockchain API calls
+
+### Troubleshooting Extension Builds
+
+**CSP Violations:**
+- Ensure all scripts are local (no CDN links)
+- Check manifest.json CSP policy matches requirements
+- Verify QRCode library is the browser-compatible version
+
+**Build Errors:**
+- Clear node_modules and reinstall if esbuild fails
+- Check that all source files exist in correct locations
+- Verify crypto-secure.min.js is generated correctly
+
+**Runtime Errors:**
+- Check console for "require is not defined" (use browser-compatible libraries)
+- Verify cryptoLight is loaded before wallet operations
+- Test theme switching and storage persistence
 
 This wallet is **extremely versatile** and can run in multiple environments:
 
@@ -339,6 +444,12 @@ npx cap open android  # or ios
   - Change password (re‑encrypt seed)
   - Export/Import encrypted backup (.wdk)
   - Auto‑lock timeout selection (persisted), quick "Lock now"
+  - **Seed Security Options**: Professional-grade seed phrase lengths (12-24 words) with BIP39 compliance
+    - ⚠️ 12 words (128-bit): Basic testing and small amounts
+    - 🟡 15 words (160-bit): Standard personal use
+    - 🟢 18 words (192-bit): Enhanced security for regular users
+    - 🔵 21 words (224-bit): Professional-grade for businesses
+    - 💎 24 words (256-bit): Maximum security for large sums and institutions
 - UX
   - Centered, sharp modals; backdrop click-to-close; inner clicks safe
   - Topbar theme switching (Auto/Light/Dark)
@@ -362,6 +473,21 @@ npx cap open android  # or ios
 - Per‑wallet encrypted payload stored in localStorage (`wdk_wallets`)
 - No passwords stored; only encrypted payloads + salts/ivs
 - Seed is kept in memory only after unlock and cleared on reload/lock
+
+### 🔑 Address Derivation (BIP39/BIP44 Standard)
+
+The wallet implements **industry-standard address derivation** compliant with BIP39 and BIP44 specifications:
+
+- **Seed Generation**: Uses PBKDF2 with HMAC-SHA512, 2048 iterations, and "mnemonic" salt (standard BIP39)
+- **HD Key Derivation**: Follows BIP32 hierarchical deterministic keys
+- **Path Standards**:
+  - Ethereum & EVM chains: `m/44'/60'/0'/0/0` (BIP44 + EIP-155)
+  - Solana: `m/44'/501'/0'/0'` (SLIP44 registered)
+  - TON: `m/44'/396'/0'/0/0` (SLIP44 registered)
+- **Compatibility**: Addresses match exactly with MetaMask, Rabby, Trust Wallet, and other standards-compliant wallets
+- **Verification**: Tested with official test vectors and cross-verified with multiple wallet implementations
+
+**Example**: With seed phrase "spread tenant edit cave hollow oak snap antenna pelican when fold blossom lucky force able jump vague lamp comfort razor kick seed sentence boost", the Ethereum address is `0x4736e2E41F00d823261E481bd47b603C583547A6`.
 
 See SECURITY_GUIDE.md for detailed guidelines and best practices.
 
