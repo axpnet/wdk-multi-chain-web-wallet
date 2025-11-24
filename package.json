@@ -55,7 +55,7 @@
     "elliptic": "^6.6.1",
     "ethers": "^6.15.0",
     "feather-icons": "^4.29.2",
-    "marked": "^17.0.0",
+    "marked": "^17.0.1",
     "qrcode": "^1.5.4",
     "sodium-javascript": "^0.8.0",
     "tiny-secp256k1": "^2.2.4",
@@ -63,7 +63,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.56.1",
-    "@vitest/ui": "^1.6.0",
+    "@vitest/ui": "^1.6.1",
     "concurrently": "^8.2.2",
     "electron": "^30.0.0",
     "electron-builder": "^24.13.3",
