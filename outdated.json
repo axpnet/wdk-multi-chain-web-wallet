@@ -1,0 +1,142 @@
+{
+  "@playwright/test": {
+    "current": "1.56.1",
+    "wanted": "1.57.0",
+    "latest": "1.57.0",
+    "dependent": "wdk-multi-chain-web-wallet",
+    "location": "/home/runner/work/wdk-multi-chain-web-wallet/wdk-multi-chain-web-wallet/node_modules/@playwright/test"
+  },
+  "@tetherto/wdk": {
+    "current": "1.0.0-beta.3",
+    "wanted": "1.0.0-beta.4",
+    "latest": "1.0.0-beta.4",
+    "dependent": "wdk-multi-chain-web-wallet",
+    "location": "/home/runner/work/wdk-multi-chain-web-wallet/wdk-multi-chain-web-wallet/node_modules/@tetherto/wdk"
+  },
+  "@tetherto/wdk-wallet-evm": {
+    "current": "1.0.0-beta.3",
+    "wanted": "1.0.0-beta.4",
+    "latest": "1.0.0-beta.4",
+    "dependent": "wdk-multi-chain-web-wallet",
+    "location": "/home/runner/work/wdk-multi-chain-web-wallet/wdk-multi-chain-web-wallet/node_modules/@tetherto/wdk-wallet-evm"
+  },
+  "@tetherto/wdk-wallet-solana": {
+    "current": "1.0.0-beta.2",
+    "wanted": "1.0.0-beta.3",
+    "latest": "1.0.0-beta.3",
+    "dependent": "wdk-multi-chain-web-wallet",
+    "location": "/home/runner/work/wdk-multi-chain-web-wallet/wdk-multi-chain-web-wallet/node_modules/@tetherto/wdk-wallet-solana"
+  },
+  "@tetherto/wdk-wallet-ton": {
+    "current": "1.0.0-beta.4",
+    "wanted": "1.0.0-beta.5",
+    "latest": "1.0.0-beta.5",
+    "dependent": "wdk-multi-chain-web-wallet",
+    "location": "/home/runner/work/wdk-multi-chain-web-wallet/wdk-multi-chain-web-wallet/node_modules/@tetherto/wdk-wallet-ton"
+  },
+  "@ton/ton": {
+    "current": "15.4.0",
+    "wanted": "15.4.0",
+    "latest": "16.0.0",
+    "dependent": "wdk-multi-chain-web-wallet",
+    "location": "/home/runner/work/wdk-multi-chain-web-wallet/wdk-multi-chain-web-wallet/node_modules/@ton/ton"
+  },
+  "@vitest/ui": {
+    "current": "1.6.0",
+    "wanted": "1.6.1",
+    "latest": "4.0.14",
+    "dependent": "wdk-multi-chain-web-wallet",
+    "location": "/home/runner/work/wdk-multi-chain-web-wallet/wdk-multi-chain-web-wallet/node_modules/@vitest/ui"
+  },
+  "concurrently": {
+    "current": "8.2.2",
+    "wanted": "8.2.2",
+    "latest": "9.2.1",
+    "dependent": "wdk-multi-chain-web-wallet",
+    "location": "/home/runner/work/wdk-multi-chain-web-wallet/wdk-multi-chain-web-wallet/node_modules/concurrently"
+  },
+  "ecpair": {
+    "current": "3.0.0",
+    "wanted": "3.0.0",
+    "latest": "2.1.0",
+    "dependent": "wdk-multi-chain-web-wallet",
+    "location": "/home/runner/work/wdk-multi-chain-web-wallet/wdk-multi-chain-web-wallet/node_modules/ecpair"
+  },
+  "electron": {
+    "current": "30.5.1",
+    "wanted": "30.5.1",
+    "latest": "39.2.4",
+    "dependent": "wdk-multi-chain-web-wallet",
+    "location": "/home/runner/work/wdk-multi-chain-web-wallet/wdk-multi-chain-web-wallet/node_modules/electron"
+  },
+  "electron-builder": {
+    "current": "24.13.3",
+    "wanted": "24.13.3",
+    "latest": "26.0.12",
+    "dependent": "wdk-multi-chain-web-wallet",
+    "location": "/home/runner/work/wdk-multi-chain-web-wallet/wdk-multi-chain-web-wallet/node_modules/electron-builder"
+  },
+  "eslint": {
+    "current": "8.57.1",
+    "wanted": "8.57.1",
+    "latest": "9.39.1",
+    "dependent": "wdk-multi-chain-web-wallet",
+    "location": "/home/runner/work/wdk-multi-chain-web-wallet/wdk-multi-chain-web-wallet/node_modules/eslint"
+  },
+  "happy-dom": {
+    "current": "20.0.10",
+    "wanted": "20.0.11",
+    "latest": "17.6.1",
+    "dependent": "wdk-multi-chain-web-wallet",
+    "location": "/home/runner/work/wdk-multi-chain-web-wallet/wdk-multi-chain-web-wallet/node_modules/happy-dom"
+  },
+  "jsdom": {
+    "current": "19.0.0",
+    "wanted": "19.0.0",
+    "latest": "26.1.0",
+    "dependent": "wdk-multi-chain-web-wallet",
+    "location": "/home/runner/work/wdk-multi-chain-web-wallet/wdk-multi-chain-web-wallet/node_modules/jsdom"
+  },
+  "marked": {
+    "current": "17.0.0",
+    "wanted": "17.0.1",
+    "latest": "15.0.12",
+    "dependent": "wdk-multi-chain-web-wallet",
+    "location": "/home/runner/work/wdk-multi-chain-web-wallet/wdk-multi-chain-web-wallet/node_modules/marked"
+  },
+  "playwright": {
+    "current": "1.56.1",
+    "wanted": "1.57.0",
+    "latest": "1.57.0",
+    "dependent": "wdk-multi-chain-web-wallet",
+    "location": "/home/runner/work/wdk-multi-chain-web-wallet/wdk-multi-chain-web-wallet/node_modules/playwright"
+  },
+  "prettier": {
+    "current": "3.6.2",
+    "wanted": "3.7.3",
+    "latest": "3.7.3",
+    "dependent": "wdk-multi-chain-web-wallet",
+    "location": "/home/runner/work/wdk-multi-chain-web-wallet/wdk-multi-chain-web-wallet/node_modules/prettier"
+  },
+  "vite": {
+    "current": "5.4.21",
+    "wanted": "5.4.21",
+    "latest": "6.4.1",
+    "dependent": "wdk-multi-chain-web-wallet",
+    "location": "/home/runner/work/wdk-multi-chain-web-wallet/wdk-multi-chain-web-wallet/node_modules/vite"
+  },
+  "vitest": {
+    "current": "1.6.0",
+    "wanted": "1.6.1",
+    "latest": "3.2.4",
+    "dependent": "wdk-multi-chain-web-wallet",
+    "location": "/home/runner/work/wdk-multi-chain-web-wallet/wdk-multi-chain-web-wallet/node_modules/vitest"
+  },
+  "wait-on": {
+    "current": "7.2.0",
+    "wanted": "7.2.0",
+    "latest": "8.0.5",
+    "dependent": "wdk-multi-chain-web-wallet",
+    "location": "/home/runner/work/wdk-multi-chain-web-wallet/wdk-multi-chain-web-wallet/node_modules/wait-on"
+  }
+}
